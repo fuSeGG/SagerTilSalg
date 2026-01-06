@@ -329,7 +329,7 @@ export default function App() {
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div className="hidden md:flex items-center gap-6">
               <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">
-                © 2025 SagerTilSalg • Peter Behrend • Mårsøvej 1, 4300 Holbæk
+                © 2025 SagerTilSalg • Peter Behrend • Mårsøvej 14, 4300 Holbæk
               </p>
             </div>
 

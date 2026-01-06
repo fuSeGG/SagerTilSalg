@@ -87,7 +87,14 @@ export const storage = {
             if (error) throw error;
 
             // Return the 'data' column content
-            return data.map(row => row.data);
+            return data.map(row => {
+                const item = row.data;
+                // Auto-migration: Rename legacy 'Bildele' to 'Auto'
+                if (item.category === 'Bildele') {
+                    item.category = 'Auto';
+                }
+                return item;
+            });
         } catch (e) {
             console.error('Supabase GetAll Error:', e);
             return [];
