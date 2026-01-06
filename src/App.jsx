@@ -343,9 +343,18 @@ export default function App() {
         {renderContent()}
       </main>
 
-      {/* Footer removed */}
-
-      {/* Mobile Admin Link removed as it's now in Header */}
+      {/* Minimalist Fixed Footer (Shop View Only) */}
+      {currentView === 'shop' && (
+        <footer className="fixed bottom-0 left-0 right-0 bg-slate-950 border-t-2 border-slate-800 py-3 px-6 z-50">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <div className="hidden md:flex items-center gap-6">
+              <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+                +45 40 78 14 88 • Peter Behrend • Mårsøvej 1, 4300 Holbæk
+              </p>
+            </div>
+          </div>
+        </footer>
+      )}
 
       {/* Modals & Overlays */}
       <ItemModal

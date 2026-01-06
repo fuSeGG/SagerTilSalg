@@ -76,7 +76,7 @@ const FavoritesDrawer = ({ isOpen, onClose, items, onRemove, onClear }) => {
                             Print Liste
                         </button>
                         <a
-                            href="tel:+4512345678"
+                            href="tel:+4540781488"
                             className="w-full flex items-center justify-center gap-3 py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/20"
                         >
                             <Phone className="size-5" />
@@ -98,8 +98,8 @@ const FavoritesDrawer = ({ isOpen, onClose, items, onRemove, onClear }) => {
                     <div>
                         <h1 className="text-3xl font-bold uppercase tracking-tighter">SagerTilSalg</h1>
                         <p className="text-sm font-bold">Peter Behrends Lager</p>
-                        <p className="text-sm">Hovedvejen 123, 8000 Aarhus</p>
-                        <p className="text-sm font-bold">Tlf: +45 12 34 56 78</p>
+                        <p className="text-sm">Mårsøvej 1, 4300 Holbæk</p>
+                        <p className="text-sm font-bold">Tlf: +45 40 78 14 88</p>
                     </div>
                     <div className="text-right">
                         <p className="text-xs">Dato: {new Date().toLocaleDateString('da-DK')}</p>
