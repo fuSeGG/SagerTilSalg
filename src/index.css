@@ -1,23 +1,32 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased selection:bg-yellow-400 selection:text-black;
+  }
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.2);
+::-webkit-scrollbar-track {
+  background: #020617;
+  /* slate-950 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #facc15;
+  /* yellow-400 */
   border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.5);
+::-webkit-scrollbar-thumb:hover {
+  background: #eab308;
+  /* yellow-500 */
 }
 
 /* Custom styles for printing */

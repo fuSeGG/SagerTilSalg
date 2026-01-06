@@ -9,10 +9,9 @@ const ContactButton = ({
     variant = 'primary'
 }) => {
     const [isRevealed, setIsRevealed] = useState(false);
-    const phoneNumber = "+45 12 34 56 78";
+    const phoneNumber = "+45 40 78 14 88";
     const cleanNumber = phoneNumber.replace(/\s/g, '');
 
-    // Check if on PC
     const isPC = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     const handleClick = (e) => {
@@ -32,14 +31,14 @@ const ContactButton = ({
 
     const Icon = type === 'tel' ? Phone : MessageSquare;
 
-    const baseStyles = "flex items-center justify-center gap-2 transition-all font-bold active:scale-95";
+    const baseStyles = "flex items-center justify-center gap-3 transition-all font-black uppercase tracking-tighter active:scale-95 border-b-4";
 
     const variants = {
-        primary: "bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20",
-        secondary: "bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-2xl",
-        header: "hidden md:flex bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-emerald-500/20 border border-emerald-400/20",
-        ghost: "text-slate-400 hover:text-white transition-colors text-sm",
-        mobile: "bg-emerald-500 text-white p-4 rounded-full shadow-2xl shadow-emerald-500/40 border-4 border-slate-900"
+        primary: "bg-yellow-400 text-black border-yellow-600 hover:bg-yellow-500 rounded-2xl shadow-xl",
+        secondary: "bg-slate-800 text-white border-slate-950 hover:bg-slate-700 rounded-2xl shadow-lg",
+        header: "hidden md:flex bg-yellow-400 text-black px-6 py-2.5 rounded-xl border-yellow-600 shadow-lg text-xs leading-none",
+        ghost: "text-yellow-400 hover:text-yellow-300 transition-colors text-xs border-none bg-transparent tabular-nums",
+        mobile: "bg-yellow-400 text-black p-5 rounded-full shadow-2xl border-yellow-600 fixed bottom-24 right-6 z-40 md:hidden"
     };
 
     return (
@@ -48,7 +47,7 @@ const ContactButton = ({
             onClick={handleClick}
             className={`${baseStyles} ${variants[variant]} ${className}`}
         >
-            <Icon className={variant === 'mobile' ? 'size-6' : 'size-4'} />
+            <Icon className={variant === 'mobile' ? 'size-8' : 'size-5'} />
             {variant !== 'mobile' && (
                 <span>{isRevealed ? phoneNumber : label}</span>
             )}

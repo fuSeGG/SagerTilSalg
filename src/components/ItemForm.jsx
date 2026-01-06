@@ -28,7 +28,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const fileInputRef = useRef(null);
 
-    const categories = ['Værktøj', 'Møbler', 'Bildele', 'Maskiner'];
+    const categories = ['Værktøj', 'Møbler', 'Auto', 'Maskiner'];
 
     const handleImageChange = async (e) => {
         const file = e.target.files[0];

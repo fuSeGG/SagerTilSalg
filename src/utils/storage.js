@@ -99,7 +99,7 @@ export const storage = {
         const prefixes = {
             'Værktøj': 'VRK',
             'Møbler': 'MBL',
-            'Bildele': 'BIL',
+            'Auto': 'AUT',
             'Maskiner': 'MSK'
         };
         const prefix = prefixes[category] || 'STS';

@@ -6,7 +6,7 @@ import {
   MessageSquare,
   Wrench,
   Armchair,
-  Car,
+  Truck,
   Settings,
   Settings2,
   Heart,
@@ -26,14 +26,14 @@ import ContactButton from './components/ContactButton';
 
 // --- Header Component ---
 const Header = ({ favoritesCount, onFavoritesClick, currentView }) => (
-  <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-    <div className="flex items-center gap-2">
-      <div className="bg-emerald-500 p-1.5 rounded-lg shadow-lg shadow-emerald-500/20">
-        <Package className="text-white size-5 md:size-6" />
+  <header className="sticky top-0 z-50 bg-slate-950 border-b-2 border-yellow-400 px-4 py-4 flex items-center justify-between shadow-2xl">
+    <div className="flex items-center gap-3">
+      <div className="bg-yellow-400 p-2 rounded-lg rotate-3 shadow-lg shadow-yellow-400/20">
+        <Package className="text-black size-5 md:size-6" />
       </div>
       <div>
-        <h1 className="text-white font-bold text-lg md:text-xl leading-none">SagerTilSalg</h1>
-        <p className="text-slate-400 text-[10px] md:text-xs uppercase tracking-widest mt-0.5">Peter Behrend</p>
+        <h1 className="text-white font-black text-xl md:text-2xl leading-none tracking-tighter italic">SAGER<span className="text-yellow-400">TIL</span>SALG</h1>
+        <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mt-0.5 ml-0.5">Peter Behrend • Industrigrej</p>
       </div>
     </div>
     <div className="flex items-center gap-2 md:gap-4">
@@ -41,11 +41,11 @@ const Header = ({ favoritesCount, onFavoritesClick, currentView }) => (
         <>
           <button
             onClick={onFavoritesClick}
-            className="relative p-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50 transition-all group"
+            className="relative p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-orange-500 hover:border-orange-500/50 transition-all group"
           >
-            <Heart className={`size-5 md:size-6 transition-transform group-active:scale-125 ${favoritesCount > 0 ? 'fill-emerald-500 text-emerald-500' : ''}`} />
+            <Heart className={`size-5 md:size-6 transition-transform group-active:scale-125 ${favoritesCount > 0 ? 'fill-orange-500 text-orange-500' : ''}`} />
             {favoritesCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ring-2 ring-slate-900 animate-in zoom-in">
+              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-sm ring-2 ring-slate-950 animate-in zoom-in uppercase">
                 {favoritesCount}
               </span>
             )}
@@ -53,6 +53,7 @@ const Header = ({ favoritesCount, onFavoritesClick, currentView }) => (
           <ContactButton
             variant="header"
             label="Ring Peter"
+            className="bg-yellow-400 text-black border-none hover:bg-yellow-500 font-black px-6 rounded-xl shadow-lg shadow-yellow-400/10"
           />
         </>
       )}
@@ -63,16 +64,16 @@ const Header = ({ favoritesCount, onFavoritesClick, currentView }) => (
 // --- Statistics Dashboard ---
 const StatsDashboard = ({ items, selectedCategory, onSelectCategory }) => {
   const stats = useMemo(() => {
-    const counts = { total: items.length, 'Værktøj': 0, 'Møbler': 0, 'Bildele': 0, 'Maskiner': 0 };
+    const counts = { total: items.length, 'Værktøj': 0, 'Møbler': 0, 'Auto': 0, 'Maskiner': 0 };
     items.forEach(item => { if (counts[item.category] !== undefined) counts[item.category]++; });
     return counts;
   }, [items]);
 
   const cards = [
-    { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-white', bg: 'bg-emerald-600' },
-    { label: 'Værktøj', key: 'Værktøj', count: stats['Værktøj'], icon: Wrench, color: 'text-orange-400', bg: 'bg-orange-400/10' },
-    { label: 'Møbler', key: 'Møbler', count: stats['Møbler'], icon: Armchair, color: 'text-purple-400', bg: 'bg-purple-400/10' },
-    { label: 'Bildele', key: 'Bildele', count: stats['Bildele'], icon: Car, color: 'text-red-400', bg: 'bg-red-400/10' },
+    { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-white', bg: 'bg-slate-700' },
+    { label: 'Værktøj', key: 'Værktøj', count: stats['Værktøj'], icon: Wrench, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+    { label: 'Møbler', key: 'Møbler', count: stats['Møbler'], icon: Armchair, color: 'text-slate-400', bg: 'bg-slate-400/10' },
+    { label: 'Auto', key: 'Auto', count: stats['Auto'], icon: Truck, color: 'text-orange-500', bg: 'bg-orange-500/10' },
     { label: 'Maskiner', key: 'Maskiner', count: stats['Maskiner'], icon: Settings, color: 'text-blue-400', bg: 'bg-blue-400/10' },
   ];
 
@@ -84,20 +85,20 @@ const StatsDashboard = ({ items, selectedCategory, onSelectCategory }) => {
           <button
             key={card.label}
             onClick={() => onSelectCategory(card.key)}
-            className={`flex flex-col items-center justify-center text-center border p-2 rounded-xl transition-all duration-300 active:scale-95 ${isActive
-              ? 'bg-emerald-500 border-emerald-400 shadow-lg shadow-emerald-500/20 z-10'
-              : 'bg-slate-800/40 border-slate-700/50 hover:border-slate-500'
+            className={`flex flex-col items-center justify-center text-center border-2 p-2 rounded-xl transition-all duration-300 active:scale-95 ${isActive
+              ? 'bg-yellow-400 border-yellow-500 shadow-xl shadow-yellow-400/20 z-10'
+              : 'bg-slate-900 border-slate-800 hover:border-slate-500'
               }`}
           >
-            <div className={`${isActive ? 'bg-white/20 text-white border-white/20' : 'bg-slate-900/40 text-slate-400 border-slate-700/30'} flex items-center justify-center px-2 py-0.5 rounded-full border mb-2`}>
-              <span className="text-[10px] font-bold leading-none">{card.count}</span>
+            <div className={`${isActive ? 'bg-black text-yellow-400 border-black' : 'bg-slate-800 text-slate-500 border-slate-700'} flex items-center justify-center px-2 py-0.5 rounded-sm border mb-2`}>
+              <span className="text-[10px] font-black leading-none">{card.count}</span>
             </div>
 
-            <div className={`${isActive ? 'text-white' : `${card.color}`} mb-1 transition-colors`}>
+            <div className={`${isActive ? 'text-black' : `${card.color}`} mb-1 transition-colors`}>
               <card.icon className="size-5" />
             </div>
 
-            <div className={`text-[10px] font-bold tracking-tight truncate w-full ${isActive ? 'text-white' : 'text-slate-300'}`}>
+            <div className={`text-[9px] uppercase font-black tracking-tight truncate w-full ${isActive ? 'text-black' : 'text-slate-400'}`}>
               {card.label}
             </div>
           </button>
@@ -324,24 +325,19 @@ export default function App() {
 
       {/* Minimalist Fixed Footer (Shop View Only) */}
       {currentView === 'shop' && (
-        <footer className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/50 py-3 px-6 z-50">
+        <footer className="fixed bottom-0 left-0 right-0 bg-slate-950 border-t-2 border-slate-800 py-3 px-6 z-50">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div className="hidden md:flex items-center gap-6">
-              <p className="text-slate-500 text-[10px] font-medium">
-                © 2025 SagerTilSalg — Peter Behrend
+              <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+                © 2025 SagerTilSalg • Peter Behrend • Mårsøvej 1, 4300 Holbæk
               </p>
-              <div className="h-4 w-px bg-slate-800" />
-              <div className="flex gap-4 text-slate-500 text-[9px] font-bold uppercase tracking-wider">
-                <span className="cursor-pointer hover:text-slate-300">Privatliv</span>
-                <span className="cursor-pointer hover:text-slate-300">Handelsbetingelser</span>
-              </div>
             </div>
 
             <div className="flex items-center gap-3 ml-auto">
-              <ContactButton variant="ghost" label="+45 12 34 56 78" className="bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50 text-[11px]" />
+              <ContactButton variant="ghost" label="+45 40 78 14 88" className="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-yellow-400 hover:border-yellow-400/50 transition-all font-bold text-[11px]" />
               <button
                 onClick={() => setCurrentView('pin')}
-                className="bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700/50 transition-all flex items-center gap-2 text-[11px] font-bold"
+                className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 px-3 py-1.5 rounded-lg border border-orange-500/30 transition-all flex items-center gap-2 text-[11px] font-black uppercase tracking-tight shadow-lg shadow-orange-500/5"
               >
                 <Lock className="size-3" />
                 Lagerstyring
