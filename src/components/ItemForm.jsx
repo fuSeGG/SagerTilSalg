@@ -109,17 +109,17 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                 <div className="w-10" /> {/* Spacer */}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 pb-20">
+            <form onSubmit={handleSubmit} className="space-y-6 pb-10">
                 {/* Image Upload Area */}
                 <div className="relative group">
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className={`aspect-square rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden ${preview ? 'border-emerald-500/50 bg-slate-900' : 'border-slate-700 bg-slate-800/50 hover:border-slate-500'
+                        className={`min-h-[200px] max-h-64 w-full rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative ${preview ? 'border-emerald-500/50 bg-slate-900 shadow-xl' : 'border-slate-700 bg-slate-800/50 hover:border-slate-500'
                             }`}
                     >
                         {preview ? (
                             <>
-                                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                                <img src={preview} alt="Preview" className="w-full h-full object-contain" />
                                 <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
                                     <RefreshCcw className="text-white size-8" />
                                     <span className="text-white font-bold">Skift billede</span>

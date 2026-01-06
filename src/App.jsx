@@ -6,12 +6,11 @@ import {
   MessageSquare,
   Wrench,
   Armchair,
-  Truck,
-  Settings,
-  Settings2,
-  Heart,
   Search,
-  Lock
+  Lock,
+  Car,
+  Heart,
+  Settings
 } from 'lucide-react';
 import { storage } from './utils/storage';
 import { supabase } from './utils/supabaseClient';
@@ -25,35 +24,55 @@ import ItemForm from './components/ItemForm';
 import ContactButton from './components/ContactButton';
 
 // --- Header Component ---
-const Header = ({ favoritesCount, onFavoritesClick, currentView }) => (
-  <header className="sticky top-0 z-50 bg-slate-950 border-b-2 border-yellow-400 px-4 py-4 flex items-center justify-between shadow-2xl">
-    <div className="flex items-center gap-3">
-      <div className="bg-yellow-400 p-2 rounded-lg rotate-3 shadow-lg shadow-yellow-400/20">
-        <Package className="text-black size-5 md:size-6" />
-      </div>
-      <div>
-        <h1 className="text-white font-black text-xl md:text-2xl leading-none tracking-tighter italic">SAGER<span className="text-yellow-400">TIL</span>SALG</h1>
-        <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mt-0.5 ml-0.5">Peter Behrend • Industrigrej</p>
-      </div>
+const Header = ({ favoritesCount, onFavoritesClick, onAdminClick, currentView }) => (
+  <header className="sticky top-0 z-50 bg-slate-950 border-b-2 border-yellow-400 px-4 py-3 flex items-center shadow-2xl">
+    {/* Left: Admin Access */}
+    <div className="flex-1 flex items-center">
+      {currentView === 'shop' && (
+        <button
+          onClick={onAdminClick}
+          className="p-2 bg-slate-900/50 border border-slate-800 rounded-lg text-slate-600 hover:text-orange-500 hover:border-orange-500/50 transition-all group"
+          title="Lagerstyring"
+        >
+          <Lock className="size-4 md:size-5 transition-transform group-active:scale-110" />
+        </button>
+      )}
     </div>
-    <div className="flex items-center gap-2 md:gap-4">
+
+    {/* Center: Branding */}
+    <div className="flex flex-col items-center justify-center text-center">
+      <div className="flex items-center gap-2 md:gap-3">
+        <div className="bg-yellow-400 p-1.5 md:p-2 rounded-lg rotate-3 shadow-lg shadow-yellow-400/20">
+          <Package className="text-black size-4 md:size-5" />
+        </div>
+        <h1 className="text-white font-black text-lg md:text-2xl leading-none tracking-tighter italic whitespace-nowrap">
+          SAGER<span className="text-yellow-400">TIL</span>SALG
+        </h1>
+      </div>
+      <p className="text-slate-500 text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
+        Professionel genbrug
+      </p>
+    </div>
+
+    {/* Right: Public Buttons */}
+    <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
       {currentView === 'shop' && (
         <>
           <button
             onClick={onFavoritesClick}
-            className="relative p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-orange-500 hover:border-orange-500/50 transition-all group"
+            className="relative p-2 md:p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-orange-500 hover:border-orange-500/50 transition-all group"
           >
-            <Heart className={`size-5 md:size-6 transition-transform group-active:scale-125 ${favoritesCount > 0 ? 'fill-orange-500 text-orange-500' : ''}`} />
+            <Heart className={`size-4 md:size-5 transition-transform group-active:scale-125 ${favoritesCount > 0 ? 'fill-orange-500 text-orange-500' : ''}`} />
             {favoritesCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-sm ring-2 ring-slate-950 animate-in zoom-in uppercase">
+              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-sm ring-2 ring-slate-950 animate-in zoom-in uppercase">
                 {favoritesCount}
               </span>
             )}
           </button>
           <ContactButton
             variant="header"
-            label="Ring Peter"
-            className="bg-yellow-400 text-black border-none hover:bg-yellow-500 font-black px-6 rounded-xl shadow-lg shadow-yellow-400/10"
+            label="Ring"
+            className="bg-yellow-400 text-black border-none hover:bg-yellow-500 font-black px-4 md:px-6 py-2 rounded-xl shadow-lg shadow-yellow-400/10 text-[10px] md:text-xs uppercase tracking-widest"
           />
         </>
       )}
@@ -73,7 +92,7 @@ const StatsDashboard = ({ items, selectedCategory, onSelectCategory }) => {
     { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-white', bg: 'bg-slate-700' },
     { label: 'Værktøj', key: 'Værktøj', count: stats['Værktøj'], icon: Wrench, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
     { label: 'Møbler', key: 'Møbler', count: stats['Møbler'], icon: Armchair, color: 'text-slate-400', bg: 'bg-slate-400/10' },
-    { label: 'Auto', key: 'Auto', count: stats['Auto'], icon: Truck, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    { label: 'Auto', key: 'Auto', count: stats['Auto'], icon: Car, color: 'text-orange-500', bg: 'bg-orange-500/10' },
     { label: 'Maskiner', key: 'Maskiner', count: stats['Maskiner'], icon: Settings, color: 'text-blue-400', bg: 'bg-blue-400/10' },
   ];
 
@@ -316,36 +335,17 @@ export default function App() {
       <Header
         favoritesCount={favorites.length}
         onFavoritesClick={() => setIsFavDrawerOpen(true)}
+        onAdminClick={() => setCurrentView('pin')}
         currentView={currentView}
       />
 
-      <main className={`flex-1 overflow-hidden ${currentView === 'shop' ? 'max-w-none' : 'max-w-7xl mx-auto px-4 py-8 md:py-12'}`}>
+      <main className={`flex-1 ${currentView === 'shop' ? 'overflow-hidden max-w-none' : 'overflow-y-auto max-w-7xl mx-auto px-4 py-8 md:py-12 custom-scrollbar'}`}>
         {renderContent()}
       </main>
 
-      {/* Minimalist Fixed Footer (Shop View Only) */}
-      {currentView === 'shop' && (
-        <footer className="fixed bottom-0 left-0 right-0 bg-slate-950 border-t-2 border-slate-800 py-3 px-6 z-50">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            <div className="hidden md:flex items-center gap-6">
-              <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">
-                © 2025 SagerTilSalg • Peter Behrend • Mårsøvej 14, 4300 Holbæk
-              </p>
-            </div>
+      {/* Footer removed */}
 
-            <div className="flex items-center gap-3 ml-auto">
-              <ContactButton variant="ghost" label="+45 40 78 14 88" className="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-yellow-400 hover:border-yellow-400/50 transition-all font-bold text-[11px]" />
-              <button
-                onClick={() => setCurrentView('pin')}
-                className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 px-3 py-1.5 rounded-lg border border-orange-500/30 transition-all flex items-center gap-2 text-[11px] font-black uppercase tracking-tight shadow-lg shadow-orange-500/5"
-              >
-                <Lock className="size-3" />
-                Lagerstyring
-              </button>
-            </div>
-          </div>
-        </footer>
-      )}
+      {/* Mobile Admin Link removed as it's now in Header */}
 
       {/* Modals & Overlays */}
       <ItemModal

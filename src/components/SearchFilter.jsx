@@ -12,7 +12,7 @@ const SearchFilter = ({ searchQuery, setSearchQuery, viewMode, setViewMode }) =>
                     </div>
                     <input
                         type="text"
-                        placeholder="SØG I LAGERET..."
+                        placeholder="Søg efter..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl py-5 pl-16 pr-6 text-white text-sm font-black focus:outline-none focus:border-yellow-400 transition-all placeholder:text-slate-700 uppercase tracking-widest shadow-2xl"
