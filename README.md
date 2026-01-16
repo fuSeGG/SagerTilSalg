@@ -1,16 +1,53 @@
-# React + Vite
+# SagerTilSalg
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first warehouse showroom website for Peter Behrend. Features inventory browsing, search, favorites, and an admin panel for inventory management.
 
-Currently, two official plugins are available:
+## 🚀 Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+## 🏗️ Architecture
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+![CloudFlare Architecture](docs/architecture.png)
 
-## Expanding the ESLint configuration
+- **Frontend**: React + Vite, hosted on CloudFlare Pages.
+- **Backend**: CloudFlare Pages Functions for secure admin operations.
+- **Database**: Supabase (PostgreSQL) with Row Level Security.
+- **Storage**: Supabase Storage for item images.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📦 Tech Stack
+
+- **React 19** with Vite
+- **Tailwind CSS** for styling
+- **Lucide React** for icons
+- **Supabase** for database and storage
+- **CloudFlare Pages** for hosting (migrating from GitHub Pages)
+
+## 🔐 Security
+
+- Admin PIN verification via server-side CloudFlare Function
+- Supabase RLS policies for "Public Read / Admin Write"
+- Service role keys stored as CloudFlare Secrets
+
+## 📁 Project Structure
+
+```
+src/
+├── components/      # React components
+├── utils/           # Storage, Supabase client, helpers
+└── App.jsx          # Main application controller
+
+functions/           # CloudFlare Pages Functions (Phase 2)
+├── verify-pin.js    # Admin authentication
+└── admin/           # Secure write operations
+
+docs/
+└── architecture.png # System architecture diagram
+```
+
+## 📄 License
+
+Private project for Peter Behrend.
