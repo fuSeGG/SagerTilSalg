@@ -5,20 +5,38 @@ const PinAuth = ({ onAuthSuccess, onCancel }) => {
     const [pin, setPin] = useState('');
     const [error, setError] = useState('');
 
-    const handleNumber = (num) => {
+    const handleNumber = async (num) => {
         if (pin.length < 4) {
             const newPin = pin + num;
             setPin(newPin);
             setError('');
 
-            if (newPin === '1234') { // Default PIN
-                onAuthSuccess();
-            } else if (newPin.length === 4) {
-                setError('FORKERT ADGANGSKODE');
-                setTimeout(() => {
-                    setPin('');
-                    setError('');
-                }, 1000);
+            if (newPin.length === 4) {
+                try {
+                    // Call CloudFlare Function
+                    const response = await fetch('/verify-pin', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pin: newPin })
+                    });
+
+                    if (response.ok) {
+                        onAuthSuccess();
+                    } else {
+                        setError('FORKERT ADGANGSKODE');
+                        setTimeout(() => {
+                            setPin('');
+                            setError('');
+                        }, 1000);
+                    }
+                } catch (e) {
+                    console.error('Auth error:', e);
+                    setError('FEJL I FORBINDELSE');
+                    setTimeout(() => {
+                        setPin('');
+                        setError('');
+                    }, 1000);
+                }
             }
         }
     };
