@@ -139,6 +139,8 @@ export default function App() {
   const [isFavDrawerOpen, setIsFavDrawerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
+  const [adminPin, setAdminPin] = useState(null); // Store verified PIN
+
   // Load items on mount
   useEffect(() => {
     const loadData = async () => {
@@ -156,8 +158,8 @@ export default function App() {
   const saveItem = async (itemData) => {
     const isNew = !items.find(i => i.sku === itemData.sku);
 
-    // Save item
-    await storage.set(`item:${itemData.sku}`, itemData);
+    // Save item via secure proxy
+    await storage.set(`item:${itemData.sku}`, itemData, adminPin);
 
     if (isNew) {
       setItems(prev => [itemData, ...prev]);
@@ -169,17 +171,10 @@ export default function App() {
   };
 
   const deleteItem = async (sku) => {
-    const itemToDelete = items.find(i => i.sku === sku);
+    // Delete via secure proxy
+    await storage.remove(`item:${sku}`, adminPin);
 
-    // Delete image from storage if it's a Supabase URL
-    if (itemToDelete?.image && itemToDelete.image.includes('supabase.co/storage/v1/object/public/inventory/')) {
-      const fileName = itemToDelete.image.split('inventory/').pop();
-      if (fileName) {
-        await supabase.storage.from('inventory').remove([fileName]);
-      }
-    }
-
-    await storage.remove(`item:${sku}`);
+    // Optimistically update UI
     setItems(prev => prev.filter(i => i.sku !== sku));
   };
 
@@ -285,7 +280,10 @@ export default function App() {
       case 'pin':
         return (
           <PinAuth
-            onAuthSuccess={() => setCurrentView('admin')}
+            onAuthSuccess={(pin) => {
+              setAdminPin(pin);
+              setCurrentView('admin');
+            }}
             onCancel={() => setCurrentView('shop')}
           />
         );

@@ -21,7 +21,7 @@ const PinAuth = ({ onAuthSuccess, onCancel }) => {
                     });
 
                     if (response.ok) {
-                        onAuthSuccess();
+                        onAuthSuccess(newPin); // Pass the verified PIN
                     } else {
                         setError('FORKERT ADGANGSKODE');
                         setTimeout(() => {

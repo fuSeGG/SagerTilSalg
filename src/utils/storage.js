@@ -26,24 +26,27 @@ export const storage = {
         }
     },
 
-    // Adapter to save an item
-    async set(key, value) {
+    // Adapter to save an item (via CloudFlare Proxy)
+    async set(key, value, pin) {
         try {
             // Check if it's an item
             if (key.includes('item:') && value.sku && value.category) {
-                // Upsert into Supabase
-                const { error } = await supabase
-                    .from('items')
-                    .upsert({
-                        sku: value.sku,
-                        category: value.category,
-                        data: value,
-                        // We rely on default created_at for new items, 
-                        // but for updates we might want to keep original or update modified_at.
-                        // For this prototype, simple upsert is fine.
-                    }, { onConflict: 'sku' });
+                if (!pin) {
+                    console.error('PIN required for saving items');
+                    return false;
+                }
 
-                if (error) throw error;
+                const response = await fetch('/functions/admin/save-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item: value, pin })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || 'Failed to save');
+                }
+
                 return true;
             }
 
@@ -52,20 +55,30 @@ export const storage = {
             return true;
         } catch (e) {
             console.error('Storage Set Error:', e);
-            return false;
+            throw e; // Propagate error to UI
         }
     },
 
-    async remove(key) {
+    // Adapter to delete an item
+    async remove(key, pin) {
         try {
             if (key.includes('item:')) {
-                const sku = key.split('item:')[1];
-                const { error } = await supabase
-                    .from('items')
-                    .delete()
-                    .eq('sku', sku);
+                if (!pin) {
+                    console.error('PIN required for deleting items');
+                    return false;
+                }
 
-                if (error) throw error;
+                const sku = key.split('item:')[1];
+
+                const response = await fetch('/functions/admin/delete-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sku, pin })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete item');
+                }
                 return true;
             }
             localStorage.removeItem(STORAGE_NAMESPACE + key);
