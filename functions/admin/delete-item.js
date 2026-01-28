@@ -13,11 +13,25 @@ export async function onRequestPost({ request, env }) {
         // 2. Initialize Supabase with Service Key (Admin)
         const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-        // 3. Fetch item to find associated image (for cleanup) - OPTIONAL but good practice
-        // For now, we'll let the client handle image deletion logic or do it here?
-        // Better to do it here for security, but we need to know the path.
-        // Let's first just delete the row.
+        // 3. Fetch item to find associated image (for cleanup)
+        const { data: item } = await supabase
+            .from('items')
+            .select('data')
+            .eq('sku', sku)
+            .single();
 
+        if (item && item.data && item.data.image) {
+            const imageUrl = item.data.image;
+            if (imageUrl.includes('supabase.co/storage/v1/object/public/inventory/')) {
+                const fileName = imageUrl.split('inventory/').pop();
+                if (fileName) {
+                    // Delete from Storage
+                    await supabase.storage.from('inventory').remove([fileName]);
+                }
+            }
+        }
+
+        // 4. Delete the Item Row
         const { error } = await supabase
             .from('items')
             .delete()
