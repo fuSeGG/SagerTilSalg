@@ -66,7 +66,7 @@ const PinAuth = ({ onAuthSuccess, onCancel }) => {
                         <Lock className="text-black size-8" />
                     </div>
                     <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">ADGANG <span className="text-yellow-400">KONTROL</span></h2>
-                    <p className="text-slate-500 text-[10px] font-black mt-2 uppercase tracking-[0.3em]">Indtast 4-cifret kode</p>
+                    <p className="text-slate-500 text-xs font-black mt-2 uppercase tracking-[0.3em]">Indtast 4-cifret kode</p>
                 </div>
 
                 <div className="flex justify-center gap-5 mb-10">

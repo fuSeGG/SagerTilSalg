@@ -40,12 +40,12 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
             {/* Internal Stats Dashboard */}
             <div className="bg-slate-900/50 border-2 border-slate-800 rounded-3xl p-6 mb-8 grid grid-cols-2 lg:grid-cols-5 gap-6">
                 <div className="flex flex-col border-l-2 border-yellow-400 pl-4">
-                    <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Beholdning</span>
+                    <span className="text-slate-500 text-xs font-black uppercase tracking-widest mb-1">Total Beholdning</span>
                     <span className="text-3xl font-black text-white tracking-tighter tabular-nums leading-none">{items.length}</span>
                 </div>
                 {['Værktøj', 'Møbler', 'Auto', 'Maskiner'].map(cat => (
                     <div key={cat} className="flex flex-col border-l-2 border-slate-800 pl-4 hover:border-slate-700 transition-colors">
-                        <span className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-1">{cat}</span>
+                        <span className="text-slate-600 text-xs font-black uppercase tracking-widest mb-1">{cat}</span>
                         <span className="text-2xl font-black text-slate-300 tracking-tighter tabular-nums leading-none">
                             {items.filter(i => i.category === cat).length}
                         </span>
@@ -80,7 +80,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-slate-950/50">
-                            <tr className="text-slate-600 text-[10px] uppercase font-black tracking-[0.3em]">
+                            <tr className="text-slate-600 text-xs uppercase font-black tracking-[0.3em]">
                                 <th className="px-4 md:px-8 py-4 border-b border-slate-800">Varer</th>
                                 <th className="px-4 py-4 border-b border-slate-800 hidden sm:table-cell">Ref</th>
                                 <th className="px-4 py-4 border-b border-slate-800 hidden lg:table-cell">Kategori</th>
@@ -99,31 +99,31 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                                             <div className="min-w-0">
                                                 <div className="text-white font-black text-sm md:text-lg truncate max-w-[100px] sm:max-w-[200px] md:max-w-[300px] uppercase tracking-tighter italic leading-none mb-1">{item.name}</div>
                                                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                                    <span className="sm:hidden text-[9px] font-black text-yellow-500/50 tracking-widest uppercase">{item.sku}</span>
-                                                    <div className="text-slate-600 text-[10px] font-bold truncate max-w-[100px] md:max-w-[200px] uppercase tracking-widest opacity-60">{item.description}</div>
+                                                    <span className="sm:hidden text-xs font-black text-yellow-500/50 tracking-widest uppercase">{item.sku}</span>
+                                                    <div className="text-slate-600 text-xs font-bold truncate max-w-[100px] md:max-w-[200px] uppercase tracking-widest opacity-60">{item.description}</div>
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4 font-black text-slate-700 text-[10px] tracking-widest italic group-hover:text-yellow-500 transition-colors uppercase tabular-nums hidden sm:table-cell">
+                                    <td className="px-4 py-4 font-black text-slate-700 text-xs tracking-widest italic group-hover:text-yellow-500 transition-colors uppercase tabular-nums hidden sm:table-cell">
                                         {item.sku}
                                     </td>
                                     <td className="px-4 py-4 hidden lg:table-cell">
-                                        <span className="bg-slate-800/50 text-slate-400 text-[9px] font-black px-2.5 py-1 rounded-md border border-slate-800 uppercase tracking-widest">
+                                        <span className="bg-slate-800/50 text-slate-400 text-xs font-black px-2.5 py-1 rounded-md border border-slate-800 uppercase tracking-widest">
                                             {item.category}
                                         </span>
                                     </td>
                                     <td className="px-4 py-4">
                                         <div className="flex flex-col">
                                             <span className="text-white font-black text-sm md:text-base tracking-tighter italic leading-none">{item.price ? `${item.price},-` : '-'}</span>
-                                            <span className="text-slate-600 font-bold tabular-nums text-[9px] md:text-[10px] uppercase tracking-widest mt-1">{item.quantity || 1} stk</span>
+                                            <span className="text-slate-600 font-bold tabular-nums text-xs md:text-xs uppercase tracking-widest mt-1">{item.quantity || 1} stk</span>
                                         </div>
                                     </td>
                                     <td className="px-4 md:px-8 py-4 text-right">
                                         <div className="flex items-center justify-end gap-1 md:gap-2">
                                             {deleteConfirm === item.sku ? (
                                                 <div className="flex items-center gap-1 animate-in slide-in-from-right-2">
-                                                    <button onClick={() => onDelete(item.sku)} className="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-lg font-black uppercase text-[9px] tracking-widest transition-all">Slet</button>
+                                                    <button onClick={() => onDelete(item.sku)} className="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-lg font-black uppercase text-xs tracking-widest transition-all">Slet</button>
                                                     <button onClick={() => setDeleteConfirm(null)} className="p-1.5 bg-slate-800 text-slate-400 rounded-lg border border-slate-700"><X className="size-3.5" /></button>
                                                 </div>
                                             ) : (

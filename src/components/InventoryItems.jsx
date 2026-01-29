@@ -1,39 +1,59 @@
 import React from 'react';
 import { Heart, Maximize2 } from 'lucide-react';
 
+// Helper to format SKU for display (AUT-00003 -> AU 3)
+const formatSku = (sku) => {
+    if (!sku) return '';
+    const parts = sku.split('-');
+    if (parts.length < 2) return sku; // Fallback
+    const prefix = parts[0].substring(0, 2); // First 2 chars of prefix
+    const number = parseInt(parts[1], 10); // Parse int to remove leading zeros
+    return `${prefix} ${number}`;
+};
+
 export const ItemCard = ({ item, isFavorite, onToggleFavorite, onClick, isSelected }) => {
     return (
         <div className={`group bg-slate-900 border-2 rounded-2xl overflow-hidden transition-all duration-300 ${isSelected ? 'border-yellow-400 ring-2 ring-yellow-400/20' : 'border-slate-800 hover:border-slate-700'}`}>
-            <div className={`relative aspect-square overflow-hidden bg-black cursor-pointer group-hover:scale-[1.02] transition-transform duration-500`} onClick={onClick}>
+            <div className={`relative aspect-video overflow-hidden bg-black cursor-pointer group-hover:scale-[1.02] transition-transform duration-500`} onClick={onClick}>
                 <img
                     src={item.image}
                     alt={item.name}
                     loading="lazy"
                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                 />
-                <div className="absolute top-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-sm border border-slate-700 rounded text-[10px] font-black text-slate-400 tracking-widest uppercase">
-                    {item.sku}
-                </div>
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleFavorite(item.sku);
-                    }}
-                    className={`absolute top-3 right-3 p-2.5 rounded-xl backdrop-blur-md transition-all z-10 ${isFavorite ? 'bg-orange-500 text-white shadow-lg' : 'bg-black/60 text-slate-400 hover:text-white border border-slate-800'
-                        }`}
-                >
-                    <Heart className={`size-5 ${isFavorite ? 'fill-current' : ''}`} />
-                </button>
-                <div className="absolute bottom-3 right-3 bg-yellow-400 px-3 py-1.5 rounded-sm shadow-xl transform rotate-1 group-hover:rotate-0 transition-transform">
-                    <span className="text-black font-black text-sm">{item.price ? `${item.price},-` : 'Ring'}</span>
+                <div className="absolute top-2 right-2 flex gap-2">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite(item.sku);
+                        }}
+                        className={`p-2 rounded-full backdrop-blur-md transition-all ${isFavorite ? 'bg-orange-500 text-white' : 'bg-black/50 text-white/50 hover:bg-black/80 hover:text-white'}`}
+                    >
+                        <Heart className={`size-4 ${isFavorite ? 'fill-current' : ''}`} />
+                    </button>
                 </div>
             </div>
-            <div className="p-4 bg-slate-950/50 group-hover:bg-slate-900 transition-colors border-t border-slate-800">
-                <h3 className="text-white font-black text-base mb-1 truncate group-hover:text-yellow-400 transition-colors">{item.name}</h3>
+
+            <div className="p-3" onClick={onClick}>
                 <div className="flex items-center gap-2 mb-2">
-                    <span className="text-orange-500 text-[9px] font-black uppercase tracking-widest leading-none">{item.category}</span>
+                    <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{formatSku(item.sku)}</span>
+                    <span className="h-1 w-1 bg-slate-700 rounded-full" />
+                    <span className="text-xs font-black text-orange-500 uppercase tracking-widest">{item.category}</span>
                 </div>
-                <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed h-8">{item.description}</p>
+
+                <h3 className={`font-black text-lg leading-tight mb-1 truncate transition-colors ${isSelected ? 'text-yellow-400' : 'text-slate-100 group-hover:text-yellow-400'}`}>
+                    {item.name}
+                </h3>
+
+                <p className="text-slate-500 text-xs line-clamp-2 font-medium opacity-80 leading-tight mb-2">
+                    {item.description}
+                </p>
+
+                <div className="flex items-end justify-between mt-auto">
+                    <p className={`text-xl font-black tracking-tighter ${isSelected ? 'text-yellow-400' : 'text-white'}`}>
+                        {item.price ? `${item.price},-` : 'Ring'}
+                    </p>
+                </div>
             </div>
         </div>
     );
@@ -43,35 +63,45 @@ export const ItemRow = ({ item, isFavorite, onToggleFavorite, onClick, isSelecte
     return (
         <div
             onClick={onClick}
-            className={`group relative flex items-center p-3 gap-6 rounded-2xl border-2 transition-all cursor-pointer ${isSelected
+            className={`group relative flex items-start p-1.5 gap-3 rounded-xl border border-slate-800 transition-all cursor-pointer ${isSelected
                 ? 'bg-yellow-400/5 border-yellow-400'
                 : 'bg-slate-950 border-slate-900 hover:border-slate-800'
                 }`}
         >
-            <div className="relative w-20 h-20 rounded-xl overflow-visible flex-shrink-0 z-20">
+            <div className="relative w-24 aspect-video rounded-lg overflow-hidden flex-shrink-0 z-20 bg-black">
                 <img
                     src={item.image}
                     alt={item.name}
-                    className="w-full h-full object-cover rounded-xl shadow-2xl transition-all duration-300 group-hover:scale-[1.65] group-hover:-translate-x-2 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-slate-800"
+                    className="w-full h-full object-cover rounded-lg shadow-sm border border-slate-800"
                 />
             </div>
 
-            <div className="flex-1 min-w-0 py-1 transition-all">
-                <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-black text-slate-700 tracking-tighter uppercase tabular-nums">{item.sku}</span>
-                    <span className="h-1 w-1 bg-slate-800 rounded-full" />
-                    <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">{item.category}</span>
+            <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-x-4 py-0.5">
+                {/* Name & Metadata */}
+                <div className="min-w-0 md:w-1/4 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 mb-0.5 opacity-60">
+                        <span className="text-xs font-black text-slate-500 tracking-tighter uppercase tabular-nums">{formatSku(item.sku)}</span>
+                        <span className="text-xs text-slate-700 mx-0.5">•</span>
+                        <span className="text-xs font-black text-orange-600 uppercase tracking-wider">{item.category}</span>
+                    </div>
+                    <h3 className={`font-black text-sm truncate transition-colors leading-tight ${isSelected ? 'text-yellow-400' : 'text-white group-hover:text-yellow-400'}`}>
+                        {item.name}
+                    </h3>
+                    <p className="md:hidden text-slate-600 text-xs truncate max-w-[95%] font-medium mt-0.5 leading-tight">
+                        {item.description}
+                    </p>
                 </div>
-                <h3 className={`font-black text-base truncate transition-colors ${isSelected ? 'text-yellow-400' : 'text-white group-hover:text-yellow-400'}`}>
-                    {item.name}
-                </h3>
-                <p className="text-slate-600 text-xs truncate max-w-[80%] font-medium mt-0.5">
-                    {item.description}
-                </p>
+
+                {/* Desktop Description */}
+                <div className="hidden md:block flex-1 min-w-0">
+                    <p className="text-slate-400 text-[11px] font-medium line-clamp-2 max-w-3xl opacity-90">
+                        {item.description}
+                    </p>
+                </div>
             </div>
 
-            <div className="text-right flex-shrink-0 ml-2 flex flex-col items-end gap-2">
-                <div className={`text-lg font-black tracking-tighter transition-colors ${isSelected ? 'text-yellow-400' : 'text-white'}`}>
+            <div className="text-right flex-shrink-0 ml-1 flex flex-col items-end gap-1">
+                <div className={`text-sm font-black tracking-tighter transition-colors ${isSelected ? 'text-yellow-400' : 'text-white'}`}>
                     {item.price ? `${item.price},-` : 'Ring'}
                 </div>
                 <button
@@ -79,10 +109,10 @@ export const ItemRow = ({ item, isFavorite, onToggleFavorite, onClick, isSelecte
                         e.stopPropagation();
                         onToggleFavorite(item.sku);
                     }}
-                    className={`p-2 rounded-lg transition-all ${isFavorite ? 'text-orange-500 bg-orange-500/10' : 'text-slate-700 hover:text-slate-400 hover:bg-slate-900'
+                    className={`p-1.5 rounded-md transition-all ${isFavorite ? 'text-orange-500 bg-orange-500/10' : 'text-slate-700 hover:text-slate-400 hover:bg-slate-900'
                         }`}
                 >
-                    <Heart className={`size-4 ${isFavorite ? 'fill-current' : ''}`} />
+                    <Heart className={`size-3.5 ${isFavorite ? 'fill-current' : ''}`} />
                 </button>
             </div>
         </div>
