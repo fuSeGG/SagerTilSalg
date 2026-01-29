@@ -36,7 +36,7 @@ export const storage = {
                     return false;
                 }
 
-                const response = await fetch('/functions/admin/save-item', {
+                const response = await fetch('/admin/save-item', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ item: value, pin })
@@ -70,7 +70,7 @@ export const storage = {
 
                 const sku = key.split('item:')[1];
 
-                const response = await fetch('/functions/admin/delete-item', {
+                const response = await fetch('/admin/delete-item', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ sku, pin })
