@@ -31,14 +31,15 @@ const ContactButton = ({
 
     const Icon = type === 'tel' ? Phone : MessageSquare;
 
-    const baseStyles = "flex items-center justify-center gap-3 transition-all font-black uppercase tracking-tighter active:scale-95 border-b-4";
+    const baseStyles = "flex items-center justify-center gap-3 transition-all font-black uppercase tracking-tighter active:scale-95";
 
     const variants = {
-        primary: "bg-yellow-400 text-black border-yellow-600 hover:bg-yellow-500 rounded-2xl shadow-xl",
-        secondary: "bg-slate-800 text-white border-slate-950 hover:bg-slate-700 rounded-2xl shadow-lg",
-        header: "hidden md:flex bg-yellow-400 text-black px-6 py-2.5 rounded-xl border-yellow-600 shadow-lg text-xs leading-none",
+        primary: "bg-yellow-400 text-black border-yellow-600 hover:bg-yellow-500 rounded-2xl shadow-xl border-b-4",
+        secondary: "bg-slate-800 text-white border-slate-950 hover:bg-slate-700 rounded-2xl shadow-lg border-b-4",
+        header: "hidden md:flex bg-yellow-400 text-black px-6 py-2.5 rounded-xl border-yellow-600 shadow-lg text-xs leading-none border-b-4",
         ghost: "text-yellow-400 hover:text-yellow-300 transition-colors text-xs border-none bg-transparent tabular-nums",
-        mobile: "bg-yellow-400 text-black p-5 rounded-full shadow-2xl border-yellow-600 fixed bottom-24 right-6 z-40 md:hidden"
+        mobile: "bg-yellow-400 text-black p-5 rounded-full shadow-2xl border-yellow-600 fixed bottom-24 right-6 z-40 md:hidden border-b-4",
+        sidebar: "bg-yellow-400 hover:bg-yellow-500 text-black font-black py-3 rounded-xl shadow-lg shadow-yellow-400/10 uppercase tracking-wide text-xs"
     };
 
     return (

@@ -145,7 +145,7 @@ const Sidebar = ({
                 <ContactButton
                     variant="sidebar"
                     label="Ring for bestilling"
-                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-black py-3 rounded-xl shadow-lg shadow-yellow-400/10 mb-2 uppercase tracking-wide text-xs flex justify-center items-center gap-2"
+                    className="w-full mb-2 gap-2"
                 />
                 <div className="text-center space-y-1">
                     <p className="text-slate-400 text-xs font-bold uppercase tracking-tight">Mårsøvej 1, 4300 Holbæk</p>
