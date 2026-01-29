@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Trash2, Printer, Phone, Heart, Bookmark, ArrowRight } from 'lucide-react';
+import { X, Trash2, Printer, Phone, Heart, Bookmark, ArrowRight, FileText } from 'lucide-react';
+import { formatFavoritesAsText, downloadTextFile } from '../utils/exportUtils';
 
 const FavoritesDrawer = ({ isOpen, onClose, items, onRemove, onClear }) => {
     if (!isOpen) return null;
@@ -74,6 +75,16 @@ const FavoritesDrawer = ({ isOpen, onClose, items, onRemove, onClear }) => {
                         >
                             <Printer className="size-5" />
                             Print Liste
+                        </button>
+                        <button
+                            onClick={() => {
+                                const text = formatFavoritesAsText(items);
+                                downloadTextFile(text);
+                            }}
+                            className="w-full flex items-center justify-center gap-3 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-2xl font-bold transition-all border border-slate-700"
+                        >
+                            <FileText className="size-5" />
+                            Gem som tekst
                         </button>
                         <a
                             href="tel:+4540781488"

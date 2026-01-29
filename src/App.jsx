@@ -3,6 +3,7 @@ import {
   Menu,
   Search,
   Package,
+  Heart,
 } from 'lucide-react';
 import { storage } from './utils/storage';
 import { supabase } from './utils/supabaseClient';
@@ -100,8 +101,26 @@ export default function App() {
           <div className="flex flex-col h-full">
             {/* Mobile Top Bar */}
             <div className="md:hidden flex items-center justify-between p-4 bg-slate-950 border-b border-slate-800">
-              <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-white">
-                <Menu className="size-6" />
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="md:hidden fixed top-4 left-4 z-40 p-2 bg-slate-900/40 backdrop-blur-md rounded-xl text-white border border-slate-700/50"
+              >
+                <Menu />
+              </button>
+
+              {/* Quick Access Favorites Button (Top Right) */}
+              <button
+                onClick={() => setIsFavDrawerOpen(true)}
+                className="fixed top-4 right-4 z-40 p-3 bg-slate-900/80 backdrop-blur-md rounded-full text-white border border-slate-700/50 shadow-xl hover:bg-slate-800 transition-all active:scale-95 group"
+              >
+                <div className="relative">
+                  <Heart className={`size-6 ${favorites.length > 0 ? 'text-emerald-500 fill-emerald-500' : 'text-slate-400 group-hover:text-red-400'}`} />
+                  {favorites.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-900">
+                      {favorites.length}
+                    </span>
+                  )}
+                </div>
               </button>
               <div className="flex items-center gap-2">
                 <div className="bg-yellow-400 p-1 rounded rotate-3">
