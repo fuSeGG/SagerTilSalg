@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Menu,
-  Search,
-  Package,
-  Heart,
-} from 'lucide-react';
+import { Menu, Heart, Package } from 'lucide-react';
 import { storage } from './utils/storage';
 import { supabase } from './utils/supabaseClient';
 import { ItemCard, ItemRow } from './components/InventoryItems';
