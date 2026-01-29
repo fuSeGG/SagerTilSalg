@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Menu, Heart, Package } from 'lucide-react';
+import { Menu, Heart, Package, Printer, FileText, ArrowRight, Bookmark } from 'lucide-react';
+import { formatFavoritesAsText, downloadTextFile } from './utils/exportUtils';
 import { storage } from './utils/storage';
-import { supabase } from './utils/supabaseClient';
 import { ItemCard, ItemRow } from './components/InventoryItems';
 import ItemModal from './components/ItemModal';
-import FavoritesDrawer from './components/FavoritesDrawer';
+
 import PinAuth from './components/PinAuth';
 import AdminDashboard from './components/AdminDashboard';
 import ItemForm from './components/ItemForm';
@@ -15,11 +15,17 @@ export default function App() {
   const [items, setItems] = useState([]);
   const [viewMode, setViewMode] = useState('list');
   const [currentView, setCurrentView] = useState('shop'); // shop, pin, admin, add, edit
-  const [favorites, setFavorites] = useState([]);
+
+  // Lazy init favorites from sessionStorage
+  const [favorites, setFavorites] = useState(() => {
+    const saved = sessionStorage.getItem('sts_favorites');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Alle');
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isFavDrawerOpen, setIsFavDrawerOpen] = useState(false);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
@@ -34,9 +40,6 @@ export default function App() {
       setIsLoading(false);
     };
     loadData();
-
-    const savedFavs = sessionStorage.getItem('sts_favorites');
-    if (savedFavs) setFavorites(JSON.parse(savedFavs));
   }, []);
 
   const saveItem = async (itemData) => {
@@ -89,6 +92,10 @@ export default function App() {
     sessionStorage.setItem('sts_favorites', JSON.stringify(newFavs));
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case 'shop':
@@ -105,13 +112,15 @@ export default function App() {
 
               {/* Quick Access Favorites Button (Top Right) */}
               <button
-                onClick={() => setIsFavDrawerOpen(true)}
-                className="fixed top-4 right-4 z-40 p-3 bg-slate-900/80 backdrop-blur-md rounded-full text-white border border-slate-700/50 shadow-xl hover:bg-slate-800 transition-all active:scale-95 group"
+                onClick={() => setSelectedCategory('Favoritter')}
+                className={`fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
+                  ? 'bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500'
+                  : 'bg-slate-900/80 text-white border-slate-700/50 hover:bg-slate-800'}`}
               >
                 <div className="relative">
-                  <Heart className={`size-6 ${favorites.length > 0 ? 'text-emerald-500 fill-emerald-500' : 'text-slate-400 group-hover:text-red-400'}`} />
+                  <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-black text-black' : 'fill-emerald-500 text-emerald-500') : 'text-slate-400 group-hover:text-red-400'}`} />
                   {favorites.length > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-900">
+                    <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-900 ${selectedCategory === 'Favoritter' ? 'bg-black text-yellow-400' : 'bg-red-500 text-white'}`}>
                       {favorites.length}
                     </span>
                   )}
@@ -127,18 +136,49 @@ export default function App() {
             </div>
 
             {/* Desktop Header Context */}
-            <div className="flex-shrink-0 px-6 py-4 bg-slate-900/20 border-b border-slate-800/30">
-              <div className="flex items-baseline gap-3">
-                <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
-                  {selectedCategory === 'Alle' ? 'Alle Varer' : selectedCategory}
-                </h2>
-                <span className="text-xs text-slate-500 font-bold not-italic tracking-normal bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-700/50">
-                  {filteredItems.length} varer
-                </span>
+            <div className="flex-shrink-0 px-6 py-4 bg-slate-900/20 border-b border-slate-800/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-baseline gap-3">
+                  <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
+                    {selectedCategory === 'Alle' ? 'Alle Varer' : selectedCategory}
+                  </h2>
+                  <span className="text-xs text-slate-500 font-bold not-italic tracking-normal bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-700/50">
+                    {filteredItems.length} varer
+                  </span>
+                </div>
+                <p className="text-slate-500 mt-1.5 text-xs font-bold uppercase tracking-[0.3em]">
+                  {selectedCategory === 'Favoritter' ? 'Dine gemte favoritter' : 'Gennemse vores lager'}
+                </p>
               </div>
-              <p className="text-slate-500 mt-1.5 text-xs font-bold uppercase tracking-[0.3em]">
-                {selectedCategory === 'Favoritter' ? 'Dine gemte favoritter' : 'Gennemse vores lager'}
-              </p>
+
+              {/* Action Buttons for Favorites View */}
+              {selectedCategory === 'Favoritter' && favorites.length > 0 && (
+                <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
+                  <button
+                    onClick={() => {
+                      const text = formatFavoritesAsText(filteredItems);
+                      downloadTextFile(text);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-200 text-xs font-black uppercase tracking-wider transition-all active:scale-95"
+                  >
+                    <FileText className="size-4" />
+                    <span className="hidden sm:inline">Gem liste</span>
+                  </button>
+                  <button
+                    onClick={handlePrint}
+                    className="flex items-center gap-2 px-4 py-2 bg-white text-slate-950 hover:bg-slate-200 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-white/5"
+                  >
+                    <Printer className="size-4" />
+                    <span className="hidden sm:inline">Print</span>
+                  </button>
+                  <a
+                    href="tel:+4540781488"
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
+                  >
+                    Kontakt
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 pb-20 custom-scrollbar">
@@ -177,68 +217,93 @@ export default function App() {
                 )
               ) : (
                 <div className="text-center py-20 bg-slate-800/20 rounded-3xl border border-dashed border-slate-700/50 mx-4">
-                  <div className="bg-slate-800 p-4 rounded-full w-fit mx-auto mb-4">
-                    <Search className="text-slate-600 size-8" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Ingen varer fundet</h2>
 
-                  {searchQuery ? (
-                    <div className="space-y-4">
-                      <p className="text-slate-500 mb-6 max-w-sm mx-auto italic">
-                        Ingen match i "{selectedCategory === 'Alle' ? 'lageret' : selectedCategory}" for "{searchQuery}"
+                  {/* Specialized Empty States */}
+                  {selectedCategory === 'Favoritter' ? (
+                    <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                      <div className="bg-slate-800 p-6 rounded-full mb-6 relative">
+                        <Bookmark className="text-slate-600 size-10" />
+                        <Heart className="absolute -bottom-1 -right-1 text-slate-950 fill-slate-700 size-8 stroke-[3px]" />
+                      </div>
+                      <h2 className="text-2xl font-black text-white italic tracking-tighter mb-2">Ingen favoritter endnu</h2>
+                      <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+                        Du har ikke gemt nogen varer endnu. Klik på hjertet på de varer du er interesseret i, for at samle dem her.
                       </p>
-
-                      {/* Smart suggestions */}
-                      {(() => {
-                        const suggestions = ['Værktøj', 'Møbler', 'Auto', 'Maskiner'].filter(cat => cat !== selectedCategory).map(cat => {
-                          const count = items.filter(item =>
-                            item.category === cat &&
-                            (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                          ).length;
-                          return { cat, count };
-                        }).filter(s => s.count > 0);
-
-                        if (suggestions.length > 0) {
-                          return (
-                            <div className="space-y-3">
-                              <p className="text-xs font-black uppercase tracking-widest text-yellow-400/80">Prøv i stedet:</p>
-                              <div className="flex flex-wrap justify-center gap-2">
-                                {suggestions.map(s => (
-                                  <button
-                                    key={s.cat}
-                                    onClick={() => setSelectedCategory(s.cat)}
-                                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-black text-white transition-all active:scale-95 flex items-center gap-2"
-                                  >
-                                    <span>{s.cat}</span>
-                                    <span className="bg-yellow-400 text-black px-1.5 py-0.5 rounded text-xs">{s.count}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-
                       <button
-                        onClick={() => { setSearchQuery(''); setSelectedCategory('Alle'); }}
-                        className="block mx-auto mt-8 text-slate-400 font-bold hover:text-white transition-colors text-sm underline underline-offset-4"
+                        onClick={() => setSelectedCategory('Alle')}
+                        className="flex items-center gap-2 px-8 py-4 bg-yellow-400 hover:bg-yellow-500 text-black rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 shadow-xl shadow-yellow-400/20"
                       >
-                        Nulstil alle filtre
+                        <ArrowRight className="size-4 rotate-180" />
+                        <span>Gå til alle varer</span>
                       </button>
                     </div>
                   ) : (
-                    <>
-                      <p className="text-slate-500 mb-6 max-w-sm mx-auto">Vælg en anden kategori eller ryd dine filtre.</p>
-                      <button
-                        onClick={() => { setSearchQuery(''); setSelectedCategory('Alle'); }}
-                        className="text-emerald-500 font-bold hover:text-emerald-400 transition-colors"
-                      >
-                        Nulstil filtre
-                      </button>
-                    </>
+                    // Standard Search/Category Empty State
+                    <div>
+                      <div className="bg-slate-800 p-4 rounded-full w-fit mx-auto mb-4">
+                        <Search className="text-slate-600 size-8" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-white mb-2">Ingen varer fundet</h2>
+
+                      {searchQuery ? (
+                        <div className="space-y-4">
+                          <p className="text-slate-500 mb-6 max-w-sm mx-auto italic">
+                            Ingen match i "{selectedCategory === 'Alle' ? 'lageret' : selectedCategory}" for "{searchQuery}"
+                          </p>
+
+                          {/* Smart suggestions */}
+                          {(() => {
+                            const suggestions = ['Værktøj', 'Møbler', 'Auto', 'Maskiner'].filter(cat => cat !== selectedCategory).map(cat => {
+                              const count = items.filter(item =>
+                                item.category === cat &&
+                                (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                  item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                  item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                              ).length;
+                              return { cat, count };
+                            }).filter(s => s.count > 0);
+
+                            if (suggestions.length > 0) {
+                              return (
+                                <div className="space-y-3">
+                                  <p className="text-xs font-black uppercase tracking-widest text-yellow-400/80">Prøv i stedet:</p>
+                                  <div className="flex flex-wrap justify-center gap-2">
+                                    {suggestions.map(s => (
+                                      <button
+                                        key={s.cat}
+                                        onClick={() => setSelectedCategory(s.cat)}
+                                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-black text-white transition-all active:scale-95 flex items-center gap-2"
+                                      >
+                                        <span>{s.cat}</span>
+                                        <span className="bg-yellow-400 text-black px-1.5 py-0.5 rounded text-xs">{s.count}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+
+                          <button
+                            onClick={() => { setSearchQuery(''); setSelectedCategory('Alle'); }}
+                            className="block mx-auto mt-8 text-slate-400 font-bold hover:text-white transition-colors text-sm underline underline-offset-4"
+                          >
+                            Nulstil alle filtre
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-slate-500 mb-6 max-w-sm mx-auto">Vælg en anden kategori eller ryd dine filtre.</p>
+                          <button
+                            onClick={() => { setSearchQuery(''); setSelectedCategory('Alle'); }}
+                            className="text-emerald-500 font-bold hover:text-emerald-400 transition-colors"
+                          >
+                            Nulstil filtre
+                          </button>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -316,13 +381,15 @@ export default function App() {
 
       {/* Quick Access Favorites Button (All Screens) */}
       <button
-        onClick={() => setIsFavDrawerOpen(true)}
-        className="fixed top-4 right-4 z-40 p-3 bg-slate-900/80 backdrop-blur-md rounded-full text-white border border-slate-700/50 shadow-xl hover:bg-slate-800 transition-all active:scale-95 group"
+        onClick={() => setSelectedCategory('Favoritter')}
+        className={`fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
+          ? 'bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500'
+          : 'bg-slate-900/80 text-white border-slate-700/50 hover:bg-slate-800'}`}
       >
         <div className="relative">
-          <Heart className={`size-6 ${favorites.length > 0 ? 'text-emerald-500 fill-emerald-500' : 'text-slate-400 group-hover:text-red-400'}`} />
+          <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-black text-black' : 'fill-emerald-500 text-emerald-500') : 'text-slate-400 group-hover:text-red-400'}`} />
           {favorites.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-900">
+            <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-900 ${selectedCategory === 'Favoritter' ? 'bg-black text-yellow-400' : 'bg-red-500 text-white'}`}>
               {favorites.length}
             </span>
           )}
@@ -342,16 +409,7 @@ export default function App() {
         onClose={() => setSelectedItem(null)}
       />
 
-      <FavoritesDrawer
-        isOpen={isFavDrawerOpen}
-        onClose={() => setIsFavDrawerOpen(false)}
-        items={favoriteItems}
-        onRemove={toggleFavorite}
-        onClear={() => {
-          setFavorites([]);
-          sessionStorage.removeItem('sts_favorites');
-        }}
-      />
+
     </div>
   );
 }
