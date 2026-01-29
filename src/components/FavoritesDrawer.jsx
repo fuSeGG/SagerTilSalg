@@ -47,12 +47,12 @@ const FavoritesDrawer = ({ isOpen, onClose, items, onRemove, onClear }) => {
                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                 </div>
                                 <div className="flex-1 min-w-0 pr-8">
-                                    <span className="text-[10px] font-mono font-bold text-emerald-500">{item.sku}</span>
+                                    <span className="text-xs font-mono font-bold text-emerald-500">{item.sku}</span>
                                     <h4 className="text-white font-bold text-sm truncate">{item.name}</h4>
                                     <div className="flex items-center gap-2">
                                         <p className="text-slate-400 text-xs truncate">{item.category}</p>
                                         <span className="text-emerald-500 text-xs font-bold">{item.price},-</span>
-                                        {item.quantity > 1 && <span className="text-slate-500 text-[10px]">x{item.quantity}</span>}
+                                        {item.quantity > 1 && <span className="text-slate-500 text-xs">x{item.quantity}</span>}
                                     </div>
                                 </div>
                                 <button
@@ -80,7 +80,7 @@ const FavoritesDrawer = ({ isOpen, onClose, items, onRemove, onClear }) => {
                             className="w-full flex items-center justify-center gap-3 py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/20"
                         >
                             <Phone className="size-5" />
-                            Ring til Peter
+                            Ring for bestilling
                         </a>
                         <button
                             onClick={onClear}

@@ -26,34 +26,33 @@ const ItemModal = ({ item, isFavorite, onToggleFavorite, onClose }) => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40" />
                     <div className="absolute bottom-6 left-6">
-                        <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-800 font-black text-slate-400 text-[10px] tracking-[0.3em] uppercase">
+                        <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-800 font-black text-slate-400 text-xs tracking-[0.3em] uppercase">
                             Ref: {item.sku}
                         </div>
                     </div>
                 </div>
 
                 {/* Right: Info Section */}
-                <div className="w-full md:w-2/5 p-8 md:p-12 overflow-y-auto flex flex-col">
-                    <div className="mb-auto">
+                <div className="w-full md:w-2/5 p-8 md:p-12 overflow-y-auto flex flex-col custom-scrollbar">
+                    <div className="mb-auto w-full">
                         <div className="flex items-center gap-2 mb-4">
-                            <span className="w-3 h-3 rounded-full bg-orange-500 animate-pulse" />
                             <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em]">{item.category}</span>
                         </div>
 
-                        <h2 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tighter mb-8 italic uppercase">
+                        <h2 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tighter mb-8 italic uppercase break-words hyphens-auto">
                             {item.name}
                         </h2>
 
                         <div className="flex flex-col gap-1 mb-10 pb-10 border-b border-slate-800">
-                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Kontant Pris</span>
-                            <div className="text-5xl font-black text-yellow-400 tracking-tighter tabular-nums drop-shadow-lg">
+                            <span className="text-slate-500 text-xs font-black uppercase tracking-widest">Kontant Pris</span>
+                            <div className="text-5xl font-black text-yellow-400 tracking-tighter tabular-nums drop-shadow-lg break-words">
                                 {item.price ? `${item.price},-` : 'RING'}
                             </div>
                         </div>
 
-                        <div className="prose prose-invert mb-10">
-                            <h4 className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-3">Varebeskrivelse</h4>
-                            <p className="text-slate-100 text-sm leading-relaxed font-medium">
+                        <div className="prose prose-invert mb-10 w-full max-w-none">
+                            <h4 className="text-slate-500 text-xs font-black uppercase tracking-widest mb-3">Varebeskrivelse</h4>
+                            <p className="text-slate-100 text-sm leading-relaxed font-medium break-words whitespace-pre-wrap">
                                 {item.description}
                             </p>
                         </div>
@@ -64,7 +63,7 @@ const ItemModal = ({ item, isFavorite, onToggleFavorite, onClose }) => {
                             <div className="col-span-12">
                                 <ContactButton
                                     variant="primary"
-                                    label="Ring til Peter"
+                                    label="Ring for bestilling"
                                     className="w-full py-5 bg-yellow-400 text-black hover:bg-yellow-500 rounded-[1.25rem] font-black text-xl tracking-tighter shadow-xl shadow-yellow-400/10 active:scale-95 transition-all border-b-4 border-yellow-600"
                                 />
                             </div>

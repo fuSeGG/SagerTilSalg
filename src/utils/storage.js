@@ -117,15 +117,17 @@ export const storage = {
     // New helper to calculate next SKU
     async getNextSku(category) {
         const prefixes = {
-            'Værktøj': 'VRK',
-            'Møbler': 'MBL',
-            'Auto': 'AUT',
-            'Maskiner': 'MSK'
+            'Værktøj': 'VR',
+            'Møbler': 'MB',
+            'Auto': 'AU',
+            'Maskiner': 'MA'
         };
-        const prefix = prefixes[category] || 'STS';
+        const prefix = prefixes[category] || 'ST';
 
         try {
             // Find the highest SKU for this category
+            // Note: This fuzzy search might need adjustment if migrating mixed formats
+            // But for now we look for the new prefix
             const { data, error } = await supabase
                 .from('items')
                 .select('sku')
@@ -138,13 +140,16 @@ export const storage = {
             let nextNum = 1;
             if (data && data.length > 0) {
                 const lastSku = data[0].sku;
-                const numPart = parseInt(lastSku.split('-')[1]);
-                if (!isNaN(numPart)) {
-                    nextNum = numPart + 1;
+                const parts = lastSku.split('-');
+                if (parts.length > 1) {
+                    const numPart = parseInt(parts[1]);
+                    if (!isNaN(numPart)) {
+                        nextNum = numPart + 1;
+                    }
                 }
             }
 
-            return `${prefix}-${nextNum.toString().padStart(5, '0')}`;
+            return `${prefix}-${nextNum}`;
         } catch (e) {
             console.error('GetNextSku Error:', e);
             // Fallback random if offline
