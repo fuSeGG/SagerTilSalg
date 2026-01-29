@@ -26,6 +26,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     const [preview, setPreview] = useState(initialData?.image || null);
     const [imageFile, setImageFile] = useState(null); // Actual File object to upload
     const [isProcessing, setIsProcessing] = useState(false);
+    const [imageWarning, setImageWarning] = useState(null);
     const fileInputRef = useRef(null);
 
     const categories = ['Værktøj', 'Møbler', 'Auto', 'Maskiner'];
@@ -33,6 +34,14 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Check file size (10MB = 10 * 1024 * 1024 bytes)
+            const fileSizeMB = file.size / (1024 * 1024);
+            if (fileSizeMB > 10) {
+                setImageWarning(`Advarsel: Billedet er meget stort (${fileSizeMB.toFixed(1)}MB). Dette kan fylde databasen hurtigt. Overvej at formindske det.`);
+            } else {
+                setImageWarning(null);
+            }
+
             setIsProcessing(true);
             try {
                 // Keep the original File for Supabase Upload
@@ -150,6 +159,13 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                         capture="environment"
                     />
                 </div>
+
+                {imageWarning && (
+                    <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-2xl flex items-center gap-3 text-red-400 animate-pulse">
+                        <X className="size-5 flex-shrink-0" />
+                        <p className="text-xs font-bold uppercase tracking-tight">{imageWarning}</p>
+                    </div>
+                )}
 
                 {/* Form Fields */}
                 <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 space-y-6">
