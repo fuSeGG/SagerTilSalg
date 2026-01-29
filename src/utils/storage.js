@@ -114,7 +114,7 @@ export const storage = {
         }
     },
 
-    // New helper to calculate next SKU
+    // New helper to calculate next SKU (collision-safe)
     async getNextSku(category) {
         const prefixes = {
             'Værktøj': 'VR',
@@ -125,35 +125,46 @@ export const storage = {
         const prefix = prefixes[category] || 'ST';
 
         try {
-            // Find the highest SKU for this category
-            // Note: This fuzzy search might need adjustment if migrating mixed formats
-            // But for now we look for the new prefix
+            // Fetch ALL SKUs for this category to find the true max
             const { data, error } = await supabase
                 .from('items')
                 .select('sku')
-                .like('sku', `${prefix}-%`)
-                .order('sku', { ascending: false })
-                .limit(1);
+                .like('sku', `${prefix}-%`);
 
             if (error) throw error;
 
-            let nextNum = 1;
+            let maxNum = 0;
+            const existingSkus = new Set();
+
             if (data && data.length > 0) {
-                const lastSku = data[0].sku;
-                const parts = lastSku.split('-');
-                if (parts.length > 1) {
-                    const numPart = parseInt(parts[1]);
-                    if (!isNaN(numPart)) {
-                        nextNum = numPart + 1;
+                data.forEach(item => {
+                    existingSkus.add(item.sku);
+                    const parts = item.sku.split('-');
+                    if (parts.length > 1) {
+                        const numPart = parseInt(parts[1]);
+                        if (!isNaN(numPart) && numPart > maxNum) {
+                            maxNum = numPart;
+                        }
                     }
-                }
+                });
             }
 
-            return `${prefix}-${nextNum}`;
+            // Generate next SKU and verify it doesn't exist
+            let nextNum = maxNum + 1;
+            let candidateSku = `${prefix}-${nextNum}`;
+
+            // Safety: loop until we find a non-existing SKU (shouldn't normally iterate)
+            while (existingSkus.has(candidateSku)) {
+                nextNum++;
+                candidateSku = `${prefix}-${nextNum}`;
+            }
+
+            return candidateSku;
         } catch (e) {
             console.error('GetNextSku Error:', e);
-            // Fallback random if offline
-            return `${prefix}-${Math.floor(Math.random() * 10000)}`;
+            // Fallback: use timestamp to ensure uniqueness (not random!)
+            const timestamp = Date.now().toString(36).toUpperCase();
+            return `${prefix}-T${timestamp}`;
         }
     }
 };
