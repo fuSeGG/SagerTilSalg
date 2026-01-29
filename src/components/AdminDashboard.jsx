@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive } from 'lucide-react';
+import { getStorageUsage } from '../utils/storageUsage';
 
 const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [storageInfo, setStorageInfo] = useState(null);
+
+    useEffect(() => {
+        getStorageUsage().then(setStorageInfo);
+    }, []);
 
     const filteredItems = items.filter(item =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,7 +44,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
             </div>
 
             {/* Internal Stats Dashboard */}
-            <div className="bg-slate-900/50 border-2 border-slate-800 rounded-3xl p-6 mb-8 grid grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="bg-slate-900/50 border-2 border-slate-800 rounded-3xl p-6 mb-8 grid grid-cols-2 lg:grid-cols-6 gap-6">
                 <div className="flex flex-col border-l-2 border-yellow-400 pl-4">
                     <span className="text-slate-500 text-xs font-black uppercase tracking-widest mb-1">Total Beholdning</span>
                     <span className="text-3xl font-black text-white tracking-tighter tabular-nums leading-none">{items.length}</span>
@@ -51,6 +57,29 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                         </span>
                     </div>
                 ))}
+                {/* Storage Usage Indicator */}
+                <div className="flex flex-col border-l-2 border-slate-800 pl-4 col-span-2 lg:col-span-1">
+                    <div className="flex items-center gap-2 mb-1">
+                        <HardDrive className="size-3 text-slate-600" />
+                        <span className="text-slate-600 text-xs font-black uppercase tracking-widest">Billeder</span>
+                    </div>
+                    {storageInfo ? (
+                        <>
+                            <span className="text-xl font-black text-slate-300 tracking-tighter tabular-nums leading-none">
+                                {storageInfo.formattedUsed}
+                            </span>
+                            <div className="mt-2 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full transition-all ${storageInfo.usedPercent > 80 ? 'bg-red-500' : storageInfo.usedPercent > 50 ? 'bg-yellow-400' : 'bg-emerald-500'}`}
+                                    style={{ width: `${Math.min(storageInfo.usedPercent, 100)}%` }}
+                                />
+                            </div>
+                            <span className="text-slate-700 text-[10px] font-bold mt-1">{storageInfo.usedPercent}% af 1 GB</span>
+                        </>
+                    ) : (
+                        <span className="text-slate-700 text-xs font-bold">Indlæser...</span>
+                    )}
+                </div>
             </div>
 
             {/* Inventory List Header */}
