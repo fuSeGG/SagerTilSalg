@@ -11,6 +11,7 @@ export default {
           primary: 'var(--bg-primary)',
           secondary: 'var(--bg-secondary)',
           tertiary: 'var(--bg-tertiary)',
+          sidebar: 'var(--bg-sidebar)',
         },
         text: {
           primary: 'var(--text-primary)',

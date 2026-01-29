@@ -110,11 +110,11 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     return (
         <div className="max-w-2xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-                <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                <button onClick={onCancel} className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors">
                     <ArrowLeft className="size-5" />
                     <span>Annuller</span>
                 </button>
-                <h2 className="text-2xl font-bold text-white">{initialData ? 'Rediger Vare' : 'Tilføj Ny Vare'}</h2>
+                <h2 className="text-2xl font-bold text-text-primary">{initialData ? 'Rediger Vare' : 'Tilføj Ny Vare'}</h2>
                 <div className="w-10" /> {/* Spacer */}
             </div>
 
@@ -123,28 +123,28 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                 <div className="relative group">
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className={`min-h-[200px] max-h-64 w-full rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative ${preview ? 'border-emerald-500/50 bg-slate-900 shadow-xl' : 'border-slate-700 bg-slate-800/50 hover:border-slate-500'
+                        className={`min-h-[200px] max-h-64 w-full rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative ${preview ? 'border-success/50 bg-bg-secondary shadow-xl' : 'border-border bg-bg-tertiary/50 hover:border-text-muted'
                             }`}
                     >
                         {preview ? (
                             <>
                                 <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-                                <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
-                                    <RefreshCcw className="text-white size-8" />
-                                    <span className="text-white font-bold">Skift billede</span>
+                                <div className="absolute inset-0 bg-bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+                                    <RefreshCcw className="text-text-primary size-8" />
+                                    <span className="text-text-primary font-bold">Skift billede</span>
                                 </div>
                             </>
                         ) : (
                             <div className="text-center p-8">
-                                <div className="bg-slate-700 p-4 rounded-2xl w-fit mx-auto mb-4">
-                                    <Camera className="text-slate-400 size-8" />
+                                <div className="bg-bg-tertiary p-4 rounded-2xl w-fit mx-auto mb-4">
+                                    <Camera className="text-text-muted size-8" />
                                 </div>
                                 {isProcessing ? (
-                                    <p className="text-emerald-400 font-bold animate-pulse">Behandler billede...</p>
+                                    <p className="text-success font-bold animate-pulse">Behandler billede...</p>
                                 ) : (
                                     <>
                                         <h3 className="text-white font-bold mb-2">Tag eller vælg billede</h3>
-                                        <p className="text-slate-500 text-sm">Klik her for at åbne kamera eller galleri</p>
+                                        <p className="text-text-muted text-sm">Klik her for at åbne kamera eller galleri</p>
                                     </>
                                 )}
                             </div>
@@ -161,26 +161,26 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                 </div>
 
                 {imageWarning && (
-                    <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-2xl flex items-center gap-3 text-red-400 animate-pulse">
+                    <div className="bg-error/10 border border-error/50 p-4 rounded-2xl flex items-center gap-3 text-error animate-pulse">
                         <X className="size-5 flex-shrink-0" />
                         <p className="text-xs font-bold uppercase tracking-tight">{imageWarning}</p>
                     </div>
                 )}
 
                 {/* Form Fields */}
-                <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 space-y-6">
+                <div className="bg-bg-tertiary/40 border border-border/50 rounded-3xl p-6 space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">SKU (Auto)</label>
+                            <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">SKU (Auto)</label>
                             <input
                                 type="text"
                                 value={formData.sku}
                                 readOnly
-                                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed font-mono"
+                                className="w-full bg-bg-secondary/50 border border-border rounded-xl px-4 py-3 text-text-muted cursor-not-allowed font-mono"
                             />
                         </div>
                         <div>
-                            <label className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Kategori</label>
+                            <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">Kategori</label>
                             <select
                                 value={formData.category}
                                 onChange={(e) => {
@@ -192,7 +192,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                                         });
                                     }
                                 }}
-                                className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none appearance-none"
+                                className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none appearance-none"
                             >
                                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
@@ -201,46 +201,46 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Pris (DKK)</label>
+                            <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">Pris (DKK)</label>
                             <input
                                 type="number"
                                 placeholder="F.eks. 500"
                                 value={formData.price}
                                 onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                                className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder:text-slate-500"
+                                className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted"
                             />
                         </div>
                         <div>
-                            <label className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Antal (Valgfri)</label>
+                            <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">Antal (Valgfri)</label>
                             <input
                                 type="number"
                                 placeholder="1"
                                 value={formData.quantity}
                                 onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
-                                className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder:text-slate-500"
+                                className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Navn</label>
+                        <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">Navn</label>
                         <input
                             type="text"
                             placeholder="F.eks. Bosch boremaskine"
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder:text-slate-500"
+                            className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Beskrivelse</label>
+                        <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">Beskrivelse</label>
                         <textarea
                             placeholder="Skriv en detaljeret beskrivelse af varen..."
                             rows={6}
                             value={formData.description}
                             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                            className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder:text-slate-500 leading-relaxed"
+                            className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted leading-relaxed"
                         />
                     </div>
                 </div>
@@ -248,7 +248,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                 <button
                     type="submit"
                     disabled={isProcessing}
-                    className="w-full flex items-center justify-center gap-3 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-lg transition-all shadow-2xl shadow-emerald-500/30 active:scale-95 disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-3 py-5 bg-accent hover:bg-accent-hover text-accent-contrast rounded-2xl font-bold text-lg transition-all shadow-2xl shadow-accent/30 active:scale-95 disabled:opacity-50"
                 >
                     <Save className="size-6" />
                     {initialData ? 'Gem ændringer' : 'Gem vare på lageret'}

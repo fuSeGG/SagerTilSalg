@@ -52,21 +52,21 @@ const PinAuth = ({ onAuthSuccess, onCancel }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] bg-bg-primary flex items-center justify-center p-4">
             <button
                 onClick={onCancel}
-                className="absolute top-8 right-8 p-3 text-slate-600 hover:text-white transition-colors group"
+                className="absolute top-8 right-8 p-3 text-text-muted hover:text-text-primary transition-colors group"
             >
                 <X className="size-8 transition-transform group-hover:rotate-90" />
             </button>
 
-            <div className="bg-slate-900 border-x-4 border-yellow-400 p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative overflow-hidden">
+            <div className="bg-bg-secondary border-x-4 border-accent p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative overflow-hidden">
                 <div className="text-center mb-10">
-                    <div className="bg-yellow-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-yellow-400/20 rotate-3">
-                        <Lock className="text-black size-8" />
+                    <div className="bg-accent w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-accent/20 rotate-3">
+                        <Lock className="text-accent-contrast size-8" />
                     </div>
-                    <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">ADGANG <span className="text-yellow-400">KONTROL</span></h2>
-                    <p className="text-slate-500 text-xs font-black mt-2 uppercase tracking-[0.3em]">Indtast 4-cifret kode</p>
+                    <h2 className="text-2xl font-black text-text-primary uppercase tracking-tighter italic">ADGANG <span className="text-accent">KONTROL</span></h2>
+                    <p className="text-text-muted text-xs font-black mt-2 uppercase tracking-[0.3em]">Indtast 4-cifret kode</p>
                 </div>
 
                 <div className="flex justify-center gap-5 mb-10">
@@ -74,15 +74,15 @@ const PinAuth = ({ onAuthSuccess, onCancel }) => {
                         <div
                             key={i}
                             className={`w-5 h-5 rounded-md border-4 transition-all duration-300 ${pin.length > i
-                                ? 'bg-yellow-400 border-yellow-500 scale-125 shadow-xl shadow-yellow-400/40'
-                                : 'border-slate-800 bg-black'
+                                ? 'bg-accent border-accent-hover scale-125 shadow-xl shadow-accent/40'
+                                : 'border-border bg-bg-primary'
                                 }`}
                         />
                     ))}
                 </div>
 
                 {error && (
-                    <div className="absolute top-0 left-0 w-full h-full bg-red-600/90 flex items-center justify-center z-50 animate-in fade-in duration-200">
+                    <div className="absolute top-0 left-0 w-full h-full bg-error/90 flex items-center justify-center z-50 animate-in fade-in duration-200">
                         <span className="text-white font-black text-xl italic uppercase tracking-widest">{error}</span>
                     </div>
                 )}
@@ -97,8 +97,8 @@ const PinAuth = ({ onAuthSuccess, onCancel }) => {
                                 else handleNumber(val.toString());
                             }}
                             className={`py-5 rounded-2xl text-2xl font-black transition-all active:scale-95 ${typeof val === 'number'
-                                ? 'bg-slate-800 text-white hover:bg-slate-700 border-b-4 border-slate-950'
-                                : 'bg-black text-slate-600 hover:text-white border-b-4 border-slate-800'
+                                ? 'bg-bg-tertiary text-text-primary hover:bg-bg-secondary border-b-4 border-bg-primary'
+                                : 'bg-bg-primary text-text-muted hover:text-text-primary border-b-4 border-border'
                                 }`}
                         >
                             {val}

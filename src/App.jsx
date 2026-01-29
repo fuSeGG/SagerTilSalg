@@ -100,12 +100,12 @@ export default function App() {
     switch (currentView) {
       case 'shop':
         return (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full bg-bg-primary">
             {/* Mobile Top Bar */}
-            <div className="md:hidden flex items-center justify-between p-4 bg-slate-950 border-b border-slate-800">
+            <div className="md:hidden flex items-center justify-between p-4 bg-bg-primary border-b border-border">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="md:hidden fixed top-4 left-4 z-40 p-2 bg-slate-900/40 backdrop-blur-md rounded-xl text-white border border-slate-700/50"
+                className="md:hidden fixed top-4 left-4 z-40 p-2 bg-bg-secondary/40 backdrop-blur-md rounded-xl text-text-primary border border-border/50"
               >
                 <Menu />
               </button>
@@ -114,39 +114,39 @@ export default function App() {
               <button
                 onClick={() => setSelectedCategory('Favoritter')}
                 className={`fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
-                  ? 'bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500'
-                  : 'bg-slate-900/80 text-white border-slate-700/50 hover:bg-slate-800'}`}
+                  ? 'bg-accent text-accent-contrast border-accent-hover hover:bg-accent-hover'
+                  : 'bg-bg-secondary/80 text-text-primary border-border/50 hover:bg-bg-tertiary'}`}
               >
                 <div className="relative">
-                  <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-black text-black' : 'fill-emerald-500 text-emerald-500') : 'text-slate-400 group-hover:text-red-400'}`} />
+                  <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-accent-contrast text-accent-contrast' : 'fill-success text-success') : 'text-text-muted group-hover:text-error'}`} />
                   {favorites.length > 0 && (
-                    <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-900 ${selectedCategory === 'Favoritter' ? 'bg-black text-yellow-400' : 'bg-red-500 text-white'}`}>
+                    <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-bg-primary ${selectedCategory === 'Favoritter' ? 'bg-accent-contrast text-accent' : 'bg-error text-white'}`}>
                       {favorites.length}
                     </span>
                   )}
                 </div>
               </button>
               <div className="flex items-center gap-2">
-                <div className="bg-yellow-400 p-1 rounded rotate-3">
-                  <Package className="text-black size-4" />
+                <div className="bg-accent p-1 rounded rotate-3">
+                  <Package className="text-accent-contrast size-4" />
                 </div>
-                <span className="text-white font-black italic tracking-tighter">SAGER<span className="text-yellow-400">TIL</span>SALG</span>
+                <span className="text-text-primary font-black italic tracking-tighter">SAGER<span className="text-accent">TIL</span>SALG</span>
               </div>
               <div className="w-10"></div> {/* Spacer for balance */}
             </div>
 
             {/* Desktop Header Context */}
-            <div className="flex-shrink-0 px-6 py-4 bg-slate-900/20 border-b border-slate-800/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-shrink-0 px-6 py-4 bg-bg-secondary/20 border-b border-border/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-baseline gap-3">
-                  <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
+                  <h2 className="text-2xl md:text-4xl font-black text-text-primary uppercase italic tracking-tighter leading-none">
                     {selectedCategory === 'Alle' ? 'Alle Varer' : selectedCategory}
                   </h2>
-                  <span className="text-xs text-slate-500 font-bold not-italic tracking-normal bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-700/50">
+                  <span className="text-xs text-text-secondary font-bold not-italic tracking-normal bg-bg-tertiary/50 px-2 py-1 rounded-lg border border-border/50">
                     {filteredItems.length} varer
                   </span>
                 </div>
-                <p className="text-slate-500 mt-1.5 text-xs font-bold uppercase tracking-[0.3em]">
+                <p className="text-text-muted mt-1.5 text-xs font-bold uppercase tracking-[0.3em]">
                   {selectedCategory === 'Favoritter' ? 'Dine gemte favoritter' : 'Gennemse vores lager'}
                 </p>
               </div>
@@ -159,21 +159,21 @@ export default function App() {
                       const text = formatFavoritesAsText(filteredItems);
                       downloadTextFile(text);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-200 text-xs font-black uppercase tracking-wider transition-all active:scale-95"
+                    className="flex items-center gap-2 px-4 py-2 bg-bg-tertiary hover:bg-bg-secondary border border-border rounded-xl text-text-secondary text-xs font-black uppercase tracking-wider transition-all active:scale-95"
                   >
                     <FileText className="size-4" />
                     <span className="hidden sm:inline">Gem liste</span>
                   </button>
                   <button
                     onClick={handlePrint}
-                    className="flex items-center gap-2 px-4 py-2 bg-white text-slate-950 hover:bg-slate-200 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-white/5"
+                    className="flex items-center gap-2 px-4 py-2 bg-text-primary text-bg-primary hover:bg-text-secondary rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-text-primary/5"
                   >
                     <Printer className="size-4" />
                     <span className="hidden sm:inline">Print</span>
                   </button>
                   <a
                     href="tel:+4540781488"
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
+                    className="flex items-center gap-2 px-4 py-2 bg-success hover:bg-success/80 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-success/20"
                   >
                     Kontakt
                   </a>
@@ -184,8 +184,8 @@ export default function App() {
             <div className="flex-1 overflow-y-auto px-4 pb-20 custom-scrollbar">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-32 space-y-4">
-                  <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
-                  <p className="text-slate-500 font-medium animate-pulse">Henter varer...</p>
+                  <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+                  <p className="text-text-muted font-medium animate-pulse">Henter varer...</p>
                 </div>
               ) : filteredItems.length > 0 ? (
                 viewMode === 'grid' ? (
@@ -216,22 +216,22 @@ export default function App() {
                   </div>
                 )
               ) : (
-                <div className="text-center py-20 bg-slate-800/20 rounded-3xl border border-dashed border-slate-700/50 mx-4">
+                <div className="text-center py-20 bg-bg-secondary/20 rounded-3xl border border-dashed border-border/50 mx-4">
 
                   {/* Specialized Empty States */}
                   {selectedCategory === 'Favoritter' ? (
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                      <div className="bg-slate-800 p-6 rounded-full mb-6 relative">
-                        <Bookmark className="text-slate-600 size-10" />
-                        <Heart className="absolute -bottom-1 -right-1 text-slate-950 fill-slate-700 size-8 stroke-[3px]" />
+                      <div className="bg-bg-tertiary p-6 rounded-full mb-6 relative">
+                        <Bookmark className="text-text-muted size-10" />
+                        <Heart className="absolute -bottom-1 -right-1 text-bg-primary fill-text-muted size-8 stroke-[3px]" />
                       </div>
-                      <h2 className="text-2xl font-black text-white italic tracking-tighter mb-2">Ingen favoritter endnu</h2>
-                      <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+                      <h2 className="text-2xl font-black text-text-primary italic tracking-tighter mb-2">Ingen favoritter endnu</h2>
+                      <p className="text-text-secondary text-sm mb-8 leading-relaxed">
                         Du har ikke gemt nogen varer endnu. Klik på hjertet på de varer du er interesseret i, for at samle dem her.
                       </p>
                       <button
                         onClick={() => setSelectedCategory('Alle')}
-                        className="flex items-center gap-2 px-8 py-4 bg-yellow-400 hover:bg-yellow-500 text-black rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 shadow-xl shadow-yellow-400/20"
+                        className="flex items-center gap-2 px-8 py-4 bg-accent hover:bg-accent-hover text-accent-contrast rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 shadow-xl shadow-accent/20"
                       >
                         <ArrowRight className="size-4 rotate-180" />
                         <span>Gå til alle varer</span>
@@ -240,14 +240,14 @@ export default function App() {
                   ) : (
                     // Standard Search/Category Empty State
                     <div>
-                      <div className="bg-slate-800 p-4 rounded-full w-fit mx-auto mb-4">
-                        <Search className="text-slate-600 size-8" />
+                      <div className="bg-bg-tertiary p-4 rounded-full w-fit mx-auto mb-4">
+                        <Search className="text-text-muted size-8" />
                       </div>
-                      <h2 className="text-2xl font-bold text-white mb-2">Ingen varer fundet</h2>
+                      <h2 className="text-2xl font-bold text-text-primary mb-2">Ingen varer fundet</h2>
 
                       {searchQuery ? (
                         <div className="space-y-4">
-                          <p className="text-slate-500 mb-6 max-w-sm mx-auto italic">
+                          <p className="text-text-muted mb-6 max-w-sm mx-auto italic">
                             Ingen match i "{selectedCategory === 'Alle' ? 'lageret' : selectedCategory}" for "{searchQuery}"
                           </p>
 
@@ -266,16 +266,16 @@ export default function App() {
                             if (suggestions.length > 0) {
                               return (
                                 <div className="space-y-3">
-                                  <p className="text-xs font-black uppercase tracking-widest text-yellow-400/80">Prøv i stedet:</p>
+                                  <p className="text-xs font-black uppercase tracking-widest text-accent/80">Prøv i stedet:</p>
                                   <div className="flex flex-wrap justify-center gap-2">
                                     {suggestions.map(s => (
                                       <button
                                         key={s.cat}
                                         onClick={() => setSelectedCategory(s.cat)}
-                                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-black text-white transition-all active:scale-95 flex items-center gap-2"
+                                        className="px-4 py-2 bg-bg-tertiary hover:bg-bg-secondary border border-border rounded-xl text-xs font-black text-text-primary transition-all active:scale-95 flex items-center gap-2"
                                       >
                                         <span>{s.cat}</span>
-                                        <span className="bg-yellow-400 text-black px-1.5 py-0.5 rounded text-xs">{s.count}</span>
+                                        <span className="bg-accent text-accent-contrast px-1.5 py-0.5 rounded text-xs">{s.count}</span>
                                       </button>
                                     ))}
                                   </div>
@@ -287,17 +287,17 @@ export default function App() {
 
                           <button
                             onClick={() => { setSearchQuery(''); setSelectedCategory('Alle'); }}
-                            className="block mx-auto mt-8 text-slate-400 font-bold hover:text-white transition-colors text-sm underline underline-offset-4"
+                            className="block mx-auto mt-8 text-text-secondary font-bold hover:text-text-primary transition-colors text-sm underline underline-offset-4"
                           >
                             Nulstil alle filtre
                           </button>
                         </div>
                       ) : (
                         <>
-                          <p className="text-slate-500 mb-6 max-w-sm mx-auto">Vælg en anden kategori eller ryd dine filtre.</p>
+                          <p className="text-text-muted mb-6 max-w-sm mx-auto">Vælg en anden kategori eller ryd dine filtre.</p>
                           <button
                             onClick={() => { setSearchQuery(''); setSelectedCategory('Alle'); }}
-                            className="text-emerald-500 font-bold hover:text-emerald-400 transition-colors"
+                            className="text-success font-bold hover:text-success/80 transition-colors"
                           >
                             Nulstil filtre
                           </button>
@@ -363,7 +363,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-[100dvh] flex bg-slate-900 overflow-hidden font-sans text-slate-200">
+    <div className="h-[100dvh] flex bg-bg-primary overflow-hidden font-sans text-text-primary">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -383,13 +383,13 @@ export default function App() {
       <button
         onClick={() => setSelectedCategory('Favoritter')}
         className={`fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
-          ? 'bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500'
-          : 'bg-slate-900/80 text-white border-slate-700/50 hover:bg-slate-800'}`}
+          ? 'bg-accent text-accent-contrast border-accent-hover hover:bg-accent-hover'
+          : 'bg-bg-secondary/80 text-text-primary border-border/50 hover:bg-bg-tertiary'}`}
       >
         <div className="relative">
-          <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-black text-black' : 'fill-emerald-500 text-emerald-500') : 'text-slate-400 group-hover:text-red-400'}`} />
+          <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-accent-contrast text-accent-contrast' : 'fill-success text-success') : 'text-text-muted group-hover:text-error'}`} />
           {favorites.length > 0 && (
-            <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-900 ${selectedCategory === 'Favoritter' ? 'bg-black text-yellow-400' : 'bg-red-500 text-white'}`}>
+            <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-bg-primary ${selectedCategory === 'Favoritter' ? 'bg-accent-contrast text-accent' : 'bg-error text-white'}`}>
               {favorites.length}
             </span>
           )}
@@ -397,7 +397,7 @@ export default function App() {
       </button>
 
       {/* Main Content Area (Offset by Sidebar on Desktop) */}
-      <main className={`flex-1 flex flex-col h-full bg-slate-900 transition-all duration-300 md:ml-64 ${currentView !== 'shop' ? 'z-50 bg-slate-900 fixed inset-0 md:static' : ''} w-full max-w-[100vw] overflow-x-hidden`}>
+      <main className={`flex-1 flex flex-col h-full bg-bg-primary transition-all duration-300 md:ml-64 ${currentView !== 'shop' ? 'z-50 bg-bg-primary fixed inset-0 md:static' : ''} w-full max-w-[100vw] overflow-x-hidden`}>
         {renderContent()}
       </main>
 
