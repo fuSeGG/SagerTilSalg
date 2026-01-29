@@ -1,6 +1,7 @@
-import React from 'react';
-import { Package, X, Lock, Heart, Wrench, Armchair, Car, Settings, Search, List, LayoutGrid } from 'lucide-react';
+import React, { useState } from 'react';
+import { Package, X, Lock, Heart, Wrench, Armchair, Car, Settings, Search, List, LayoutGrid, Palette } from 'lucide-react';
 import ContactButton from './ContactButton';
+import ThemeSelector from './ThemeSelector';
 
 const Sidebar = ({
     isOpen,
@@ -13,9 +14,10 @@ const Sidebar = ({
     searchQuery,
     setSearchQuery,
     viewMode,
-    setViewMode,
-    currentView
+    setViewMode
 }) => {
+    const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
+
     // Calculate stats
     const stats = React.useMemo(() => {
         const counts = { total: items.length, 'Værktøj': 0, 'Møbler': 0, 'Auto': 0, 'Maskiner': 0, 'Favoritter': favoritesCount };
@@ -137,6 +139,17 @@ const Sidebar = ({
                         <Lock className="size-4 text-slate-600 group-hover:text-yellow-400 transition-colors" />
                         <span className="text-[11px] font-black uppercase tracking-wide text-slate-500 group-hover:text-slate-200">Lagerstyring</span>
                     </button>
+                    {/* Theme Toggle Button */}
+                    <button
+                        onClick={() => {
+                            setIsThemeSelectorOpen(true);
+                            if (window.innerWidth < 768) onClose();
+                        }}
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-900 transition-all group border border-transparent hover:border-slate-800"
+                    >
+                        <Palette className="size-4 text-slate-600 group-hover:text-pink-500 transition-colors" />
+                        <span className="text-[11px] font-black uppercase tracking-wide text-slate-500 group-hover:text-slate-200">Themes (Beta)</span>
+                    </button>
                 </div>
             </div>
 
@@ -152,8 +165,15 @@ const Sidebar = ({
                     <p className="text-slate-700 text-xs font-bold uppercase tracking-widest">+45 40 78 14 88</p>
                 </div>
             </div>
+
+            {/* Theme Selector Modal */}
+            <ThemeSelector
+                isOpen={isThemeSelectorOpen}
+                onClose={() => setIsThemeSelectorOpen(false)}
+            />
         </div>
     );
+
 
     return (
         <>
