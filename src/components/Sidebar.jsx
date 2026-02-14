@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Package, X, Lock, Heart, Search, List, LayoutGrid } from 'lucide-react';
 import ContactButton from './ContactButton';
 import { CATEGORIES } from '../utils/constants';

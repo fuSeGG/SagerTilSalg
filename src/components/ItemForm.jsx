@@ -1,3 +1,5 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, Upload, X, Save, ArrowLeft, RefreshCcw } from 'lucide-react';
 import { processImage } from '../utils/imageProcessor';
 import { supabase } from '../utils/supabaseClient';
 import { CATEGORIES } from '../utils/constants';

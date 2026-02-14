@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive } from 'lucide-react';
 import { getStorageUsage } from '../utils/storageUsage';
 import { CATEGORIES } from '../utils/constants';
