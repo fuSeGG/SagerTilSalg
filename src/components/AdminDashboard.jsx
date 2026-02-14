@@ -29,7 +29,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                         <span>Tilbage til showroom</span>
                     </button>
                     <div>
-                        <h2 className="text-4xl md:text-5xl font-black text-text-primary uppercase italic tracking-tighter leading-none">LAGER<span className="text-accent">STYRING</span></h2>
+                        <h2 className="text-3xl md:text-5xl font-black text-text-primary uppercase italic tracking-tighter leading-none">LAGER<span className="text-accent">STYRING</span></h2>
                     </div>
                 </div>
                 <div>

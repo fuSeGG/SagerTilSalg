@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Package, X, Lock, Heart, Wrench, Armchair, Car, Settings, Search, List, LayoutGrid, Palette } from 'lucide-react';
 import ContactButton from './ContactButton';
-import ThemeSelector from './ThemeSelector';
 
 const Sidebar = ({
     isOpen,
@@ -16,8 +15,6 @@ const Sidebar = ({
     viewMode,
     setViewMode
 }) => {
-    const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
-
     // Calculate stats
     const stats = React.useMemo(() => {
         const counts = { total: items.length, 'Værktøj': 0, 'Møbler': 0, 'Auto': 0, 'Maskiner': 0, 'Favoritter': favoritesCount };
@@ -139,17 +136,6 @@ const Sidebar = ({
                         <Lock className="size-4 text-text-muted group-hover:text-accent transition-colors" />
                         <span className="text-[11px] font-black uppercase tracking-wide text-text-secondary group-hover:text-text-primary">Lagerstyring</span>
                     </button>
-                    {/* Theme Toggle Button */}
-                    <button
-                        onClick={() => {
-                            setIsThemeSelectorOpen(true);
-                            if (window.innerWidth < 768) onClose();
-                        }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-bg-secondary transition-all group border border-transparent hover:border-border"
-                    >
-                        <Palette className="size-4 text-text-muted group-hover:text-pink-500 transition-colors" />
-                        <span className="text-[11px] font-black uppercase tracking-wide text-text-secondary group-hover:text-text-primary">Themes (Beta)</span>
-                    </button>
                 </div>
             </div>
 
@@ -165,12 +151,6 @@ const Sidebar = ({
                     <p className="text-text-muted text-xs font-bold uppercase tracking-widest">+45 40 78 14 88</p>
                 </div>
             </div>
-
-            {/* Theme Selector Modal */}
-            <ThemeSelector
-                isOpen={isThemeSelectorOpen}
-                onClose={() => setIsThemeSelectorOpen(false)}
-            />
         </div>
     );
 

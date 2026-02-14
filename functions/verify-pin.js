@@ -17,6 +17,9 @@ export async function onRequestPost({ request, env }) {
             });
         }
 
+        // Artificial delay to throttle brute force
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
         return new Response(JSON.stringify({ success: false }), {
             status: 401,
             headers: { 'Content-Type': 'application/json' }
