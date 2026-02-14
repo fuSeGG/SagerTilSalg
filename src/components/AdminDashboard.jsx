@@ -44,7 +44,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
             </div>
 
             {/* Internal Stats Dashboard */}
-            <div className="bg-bg-secondary/50 border-2 border-border rounded-3xl p-6 mb-8 grid grid-cols-2 lg:grid-cols-6 gap-6">
+            <div className="bg-bg-secondary/50 border-2 border-border rounded-3xl p-3 md:p-6 mb-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-6">
                 <div className="flex flex-col border-l-2 border-accent pl-4">
                     <span className="text-text-muted text-xs font-black uppercase tracking-widest mb-1">Total Beholdning</span>
                     <span className="text-3xl font-black text-text-primary tracking-tighter tabular-nums leading-none">{items.length}</span>
@@ -58,7 +58,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                     </div>
                 ))}
                 {/* Storage Usage Indicator */}
-                <div className="flex flex-col border-l-2 border-border pl-4 col-span-2 lg:col-span-1">
+                <div className="flex flex-col border-l-2 border-border pl-4 col-span-2 sm:col-span-1 lg:col-span-1">
                     <div className="flex items-center gap-2 mb-1">
                         <HardDrive className="size-3 text-text-muted" />
                         <span className="text-text-muted text-xs font-black uppercase tracking-widest">Billeder</span>
@@ -106,8 +106,8 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
 
             {/* Inventory Container - Responsive List View */}
             <div className="bg-bg-secondary/40 border-x-2 border-b-2 border-border rounded-b-[2rem] md:rounded-b-[2.5rem] overflow-hidden">
-                <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-left border-collapse">
+                <div className="overflow-x-auto custom-scrollbar -mx-[2px]">
+                    <table className="w-full text-left border-collapse min-w-[500px] md:min-w-full">
                         <thead className="bg-bg-primary/50">
                             <tr className="text-text-muted text-xs uppercase font-black tracking-[0.3em]">
                                 <th className="px-4 md:px-8 py-4 border-b border-border">Varer</th>

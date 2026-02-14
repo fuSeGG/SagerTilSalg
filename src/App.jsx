@@ -399,7 +399,7 @@ export default function App() {
       </button>
 
       {/* Main Content Area (Offset by Sidebar on Desktop) */}
-      <main className={`flex-1 flex flex-col h-full bg-bg-primary transition-all duration-300 md:ml-64 ${currentView !== 'shop' ? 'z-50 bg-bg-primary fixed inset-0 md:static' : ''} w-full max-w-[100vw] overflow-x-hidden`}>
+      <main className={`flex-1 flex flex-col h-full bg-bg-primary transition-all duration-300 md:ml-64 ${currentView !== 'shop' ? 'z-50 bg-bg-primary fixed inset-0 md:static' : ''} w-full max-w-[100vw] overflow-x-auto`}>
         {renderContent()}
       </main>
 
