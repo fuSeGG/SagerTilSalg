@@ -102,37 +102,39 @@ export default function App() {
         return (
           <div className="flex flex-col h-full bg-bg-primary">
             {/* Mobile Top Bar */}
-            <div className="md:hidden flex items-center justify-between p-4 bg-bg-primary border-b border-border">
+            <div className="md:hidden flex items-center h-16 px-4 bg-bg-primary border-b border-border sticky top-0 z-40">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="md:hidden fixed top-4 left-4 z-40 p-2 bg-bg-secondary/40 backdrop-blur-md rounded-xl text-text-primary border border-border/50"
+                className="p-2 -ml-2 bg-bg-secondary/40 backdrop-blur-md rounded-xl text-text-primary border border-border/50 active:scale-95 transition-all"
               >
-                <Menu />
+                <Menu className="size-6" />
               </button>
+
+              <div className="flex-1 flex items-center justify-center gap-2 pl-6">
+                <div className="bg-accent p-1 rounded rotate-3 shadow-lg shadow-accent/20">
+                  <Package className="text-accent-contrast size-4" />
+                </div>
+                <span className="text-text-primary font-black italic tracking-tighter text-lg whitespace-nowrap">
+                  SAGER<span className="text-accent">TIL</span>SALG
+                </span>
+              </div>
 
               {/* Quick Access Favorites Button (Top Right) */}
               <button
                 onClick={() => setSelectedCategory('Favoritter')}
-                className={`fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
-                  ? 'bg-accent text-accent-contrast border-accent-hover hover:bg-accent-hover'
-                  : 'bg-bg-secondary/80 text-text-primary border-border/50 hover:bg-bg-tertiary'}`}
+                className={`p-2.5 -mr-2 backdrop-blur-md rounded-xl border transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
+                  ? 'bg-accent text-accent-contrast border-accent-hover'
+                  : 'bg-bg-secondary/40 text-text-primary border-border/50'}`}
               >
                 <div className="relative">
-                  <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-accent-contrast text-accent-contrast' : 'fill-success text-success') : 'text-text-muted group-hover:text-error'}`} />
+                  <Heart className={`size-5 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-accent-contrast text-accent-contrast' : 'fill-success text-success') : 'text-text-muted group-hover:text-error'}`} />
                   {favorites.length > 0 && (
-                    <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-bg-primary ${selectedCategory === 'Favoritter' ? 'bg-accent-contrast text-accent' : 'bg-error text-white'}`}>
+                    <span className={`absolute -top-1.5 -right-1.5 text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-bg-primary ${selectedCategory === 'Favoritter' ? 'bg-accent-contrast text-accent' : 'bg-error text-white'}`}>
                       {favorites.length}
                     </span>
                   )}
                 </div>
               </button>
-              <div className="flex items-center gap-2">
-                <div className="bg-accent p-1 rounded rotate-3">
-                  <Package className="text-accent-contrast size-4" />
-                </div>
-                <span className="text-text-primary font-black italic tracking-tighter">SAGER<span className="text-accent">TIL</span>SALG</span>
-              </div>
-              <div className="w-10"></div> {/* Spacer for balance */}
             </div>
 
             {/* Desktop Header Context */}
@@ -379,10 +381,10 @@ export default function App() {
         currentView={currentView}
       />
 
-      {/* Quick Access Favorites Button (All Screens) */}
+      {/* Quick Access Favorites Button (Desktop only, mobile has it in header) */}
       <button
         onClick={() => setSelectedCategory('Favoritter')}
-        className={`fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
+        className={`hidden md:flex fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
           ? 'bg-accent text-accent-contrast border-accent-hover hover:bg-accent-hover'
           : 'bg-bg-secondary/80 text-text-primary border-border/50 hover:bg-bg-tertiary'}`}
       >
