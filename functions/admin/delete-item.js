@@ -1,5 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Helper: extract the storage file path from a Supabase public URL
+function extractStoragePath(imageUrl) {
+    if (!imageUrl || typeof imageUrl !== 'string') return null;
+    const marker = '/storage/v1/object/public/inventory/';
+    const idx = imageUrl.indexOf(marker);
+    if (idx === -1) return null;
+    return imageUrl.substring(idx + marker.length);
+}
+
 export async function onRequestPost({ request, env }) {
     try {
         const { sku, pin } = await request.json();
@@ -20,13 +29,14 @@ export async function onRequestPost({ request, env }) {
             .eq('sku', sku)
             .single();
 
-        if (item && item.data && item.data.image) {
-            const imageUrl = item.data.image;
-            if (imageUrl.includes('supabase.co/storage/v1/object/public/inventory/')) {
-                const fileName = imageUrl.split('inventory/').pop();
-                if (fileName) {
-                    // Delete from Storage
-                    await supabase.storage.from('inventory').remove([fileName]);
+        if (item?.data?.image) {
+            const filePath = extractStoragePath(item.data.image);
+            if (filePath) {
+                const { error: storageError } = await supabase.storage
+                    .from('inventory')
+                    .remove([filePath]);
+                if (storageError) {
+                    console.error(`Failed to delete image "${filePath}":`, storageError.message);
                 }
             }
         }

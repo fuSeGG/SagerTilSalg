@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Upload, X, Save, ArrowLeft, RefreshCcw } from 'lucide-react';
+import { Camera, Upload, X, Save, ArrowLeft, RefreshCcw, AlertTriangle } from 'lucide-react';
 import { processImage } from '../utils/imageProcessor';
 import { supabase } from '../utils/supabaseClient';
 import { CATEGORIES } from '../utils/constants';
@@ -25,17 +25,30 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
         }
     }, [initialData, getNextSku]);
     const [preview, setPreview] = useState(initialData?.image || null);
-    const [imageFile, setImageFile] = useState(null); // Actual File object to upload
+    const [imageFile, setImageFile] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [imageWarning, setImageWarning] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
+    const [submitError, setSubmitError] = useState(null);
     const fileInputRef = useRef(null);
+    const formTopRef = useRef(null);
 
     const categories = CATEGORIES.map(c => c.id);
+
+    // Clear specific error when field changes
+    const clearError = (field) => {
+        setFormErrors(prev => {
+            const next = { ...prev };
+            delete next[field];
+            return next;
+        });
+    };
 
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Check file size (10MB = 10 * 1024 * 1024 bytes)
+            clearError('image');
+
             const fileSizeMB = file.size / (1024 * 1024);
             if (fileSizeMB > 10) {
                 setImageWarning(`Advarsel: Billedet er meget stort (${fileSizeMB.toFixed(1)}MB). Dette kan fylde databasen hurtigt. Overvej at formindske det.`);
@@ -45,14 +58,11 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
 
             setIsProcessing(true);
             try {
-                // Keep the original File for Supabase Upload
                 setImageFile(file);
-
-                // Still create a small preview for the UI
                 const compressed = await processImage(file);
                 setPreview(compressed);
             } catch (err) {
-                alert('Kunne ikke behandle billedet. Prøv et andet.');
+                setFormErrors(prev => ({ ...prev, image: 'Kunne ikke behandle billedet. Prøv et andet format (JPG, PNG).' }));
             } finally {
                 setIsProcessing(false);
             }
@@ -79,17 +89,39 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
         return publicUrl;
     };
 
+    const validate = () => {
+        const errors = {};
+        if (!preview && !initialData?.image) {
+            errors.image = 'Du skal uploade et billede af varen.';
+        }
+        if (!formData.name || formData.name.trim() === '') {
+            errors.name = 'Varen skal have et navn.';
+        }
+        if (!formData.price && formData.price !== 0) {
+            errors.price = 'Angiv en pris for varen.';
+        }
+        if (!formData.description || formData.description.trim() === '') {
+            errors.description = 'Tilføj en beskrivelse af varen.';
+        }
+        return errors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!preview && !initialData?.image) return alert('Tilføj venligst et billede.');
-        if (!formData.name) return alert('Indtast venligst et navn.');
-        if (!formData.price) return alert('Indtast venligst en pris.');
+        setSubmitError(null);
+
+        const errors = validate();
+        setFormErrors(errors);
+
+        if (Object.keys(errors).length > 0) {
+            formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
 
         setIsProcessing(true);
         try {
             let imageUrl = formData.image;
 
-            // If a new file was selected, upload it
             if (imageFile) {
                 imageUrl = await uploadImage(imageFile, formData.sku);
             }
@@ -102,29 +134,55 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
             });
         } catch (err) {
             console.error('Upload error:', err);
-            alert('Der opstod en fejl ved gemning af billedet.');
+            setSubmitError('Der opstod en fejl. Tjek din internetforbindelse og prøv igen.');
         } finally {
             setIsProcessing(false);
         }
     };
 
+    const FieldError = ({ field }) => {
+        if (!formErrors[field]) return null;
+        return (
+            <p className="mt-1.5 text-error text-xs font-bold flex items-center gap-1.5">
+                <AlertTriangle className="size-3 flex-shrink-0" />
+                {formErrors[field]}
+            </p>
+        );
+    };
+
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto" ref={formTopRef}>
             <div className="flex items-center justify-between mb-8">
                 <button onClick={onCancel} className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors">
                     <ArrowLeft className="size-5" />
                     <span>Annuller</span>
                 </button>
                 <h2 className="text-2xl font-bold text-text-primary">{initialData ? 'Rediger Vare' : 'Tilføj Ny Vare'}</h2>
-                <div className="w-10" /> {/* Spacer */}
+                <div className="w-10" />
             </div>
+
+            {/* Summary error banner */}
+            {(Object.keys(formErrors).length > 0 || submitError) && (
+                <div className="mb-6 bg-error/10 border border-error/40 rounded-2xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <AlertTriangle className="size-5 text-error flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-error font-bold text-sm">
+                            {submitError || `Udfyld venligst ${Object.keys(formErrors).length === 1 ? 'det markerede felt' : `de ${Object.keys(formErrors).length} markerede felter`} for at fortsætte.`}
+                        </p>
+                    </div>
+                </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6 pb-10">
                 {/* Image Upload Area */}
                 <div className="relative group">
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className={`min-h-[200px] max-h-64 w-full rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative ${preview ? 'border-success/50 bg-bg-secondary shadow-xl' : 'border-border bg-bg-tertiary/50 hover:border-text-muted'
+                        className={`min-h-[200px] max-h-64 w-full rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative ${formErrors.image
+                            ? 'border-error bg-error/5'
+                            : preview
+                                ? 'border-success/50 bg-bg-secondary shadow-xl'
+                                : 'border-border bg-bg-tertiary/50 hover:border-text-muted'
                             }`}
                     >
                         {preview ? (
@@ -137,14 +195,16 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                             </>
                         ) : (
                             <div className="text-center p-8">
-                                <div className="bg-bg-tertiary p-4 rounded-2xl w-fit mx-auto mb-4">
-                                    <Camera className="text-text-muted size-8" />
+                                <div className={`p-4 rounded-2xl w-fit mx-auto mb-4 ${formErrors.image ? 'bg-error/10' : 'bg-bg-tertiary'}`}>
+                                    <Camera className={`size-8 ${formErrors.image ? 'text-error' : 'text-text-muted'}`} />
                                 </div>
                                 {isProcessing ? (
                                     <p className="text-success font-bold animate-pulse">Behandler billede...</p>
                                 ) : (
                                     <>
-                                        <h3 className="text-white font-bold mb-2">Tag eller vælg billede</h3>
+                                        <h3 className={`font-bold mb-2 ${formErrors.image ? 'text-error' : 'text-white'}`}>
+                                            {formErrors.image ? 'Billede mangler!' : 'Tag eller vælg billede'}
+                                        </h3>
                                         <p className="text-text-muted text-sm">Klik her for at åbne kamera eller galleri</p>
                                     </>
                                 )}
@@ -159,6 +219,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                         onChange={handleImageChange}
                         capture="environment"
                     />
+                    <FieldError field="image" />
                 </div>
 
                 {imageWarning && (
@@ -207,9 +268,10 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                                 type="number"
                                 placeholder="F.eks. 500"
                                 value={formData.price}
-                                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                                className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted"
+                                onChange={(e) => { setFormData(prev => ({ ...prev, price: e.target.value })); clearError('price'); }}
+                                className={`w-full bg-bg-tertiary border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted ${formErrors.price ? 'border-error' : 'border-border'}`}
                             />
+                            <FieldError field="price" />
                         </div>
                         <div>
                             <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">Antal (Valgfri)</label>
@@ -229,9 +291,10 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                             type="text"
                             placeholder="F.eks. Bosch boremaskine"
                             value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted"
+                            onChange={(e) => { setFormData(prev => ({ ...prev, name: e.target.value })); clearError('name'); }}
+                            className={`w-full bg-bg-tertiary border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted ${formErrors.name ? 'border-error' : 'border-border'}`}
                         />
+                        <FieldError field="name" />
                     </div>
 
                     <div>
@@ -240,9 +303,10 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                             placeholder="Skriv en detaljeret beskrivelse af varen..."
                             rows={6}
                             value={formData.description}
-                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                            className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted leading-relaxed"
+                            onChange={(e) => { setFormData(prev => ({ ...prev, description: e.target.value })); clearError('description'); }}
+                            className={`w-full bg-bg-tertiary border rounded-xl px-4 py-3 text-text-primary focus:ring-2 focus:ring-accent focus:outline-none placeholder:text-text-muted leading-relaxed ${formErrors.description ? 'border-error' : 'border-border'}`}
                         />
+                        <FieldError field="description" />
                     </div>
                 </div>
 
