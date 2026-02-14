@@ -1,13 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Upload, X, Save, ArrowLeft, RefreshCcw } from 'lucide-react';
 import { processImage } from '../utils/imageProcessor';
 import { supabase } from '../utils/supabaseClient';
+import { CATEGORIES } from '../utils/constants';
 
 const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     const [formData, setFormData] = useState(initialData || {
         sku: 'Loading...',
         name: '',
-        category: 'Værktøj',
+        category: CATEGORIES[0].id,
         price: '',
         quantity: 1,
         description: '',
@@ -18,7 +17,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
 
     React.useEffect(() => {
         if (!initialData && getNextSku) {
-            getNextSku('Værktøj').then(sku => {
+            getNextSku(CATEGORIES[0].id).then(sku => {
                 setFormData(prev => ({ ...prev, sku }));
             });
         }
@@ -29,7 +28,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     const [imageWarning, setImageWarning] = useState(null);
     const fileInputRef = useRef(null);
 
-    const categories = ['Værktøj', 'Møbler', 'Auto', 'Maskiner'];
+    const categories = CATEGORIES.map(c => c.id);
 
     const handleImageChange = async (e) => {
         const file = e.target.files[0];

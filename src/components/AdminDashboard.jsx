@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive } from 'lucide-react';
 import { getStorageUsage } from '../utils/storageUsage';
+import { CATEGORIES } from '../utils/constants';
 
 const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -49,11 +49,11 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                     <span className="text-text-muted text-xs font-black uppercase tracking-widest mb-1">Total Beholdning</span>
                     <span className="text-3xl font-black text-text-primary tracking-tighter tabular-nums leading-none">{items.length}</span>
                 </div>
-                {['Værktøj', 'Møbler', 'Auto', 'Maskiner'].map(cat => (
-                    <div key={cat} className="flex flex-col border-l-2 border-border pl-4 hover:border-text-muted transition-colors">
-                        <span className="text-text-muted text-xs font-black uppercase tracking-widest mb-1">{cat}</span>
+                {CATEGORIES.map(cat => (
+                    <div key={cat.id} className="flex flex-col border-l-2 border-border pl-4 hover:border-text-muted transition-colors">
+                        <span className="text-text-muted text-xs font-black uppercase tracking-widest mb-1">{cat.label}</span>
                         <span className="text-2xl font-black text-text-secondary tracking-tighter tabular-nums leading-none">
-                            {items.filter(i => i.category === cat).length}
+                            {items.filter(i => i.category === cat.id).length}
                         </span>
                     </div>
                 ))}

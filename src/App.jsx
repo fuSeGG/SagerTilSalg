@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Menu, Heart, Package, Printer, FileText, ArrowRight, Bookmark } from 'lucide-react';
 import { formatFavoritesAsText, downloadTextFile } from './utils/exportUtils';
 import { storage } from './utils/storage';
+import { CATEGORIES } from './utils/constants';
 import { ItemCard, ItemRow } from './components/InventoryItems';
 import ItemModal from './components/ItemModal';
 
@@ -36,7 +35,7 @@ export default function App() {
     const loadData = async () => {
       setIsLoading(true);
       const data = await storage.getAllItems();
-      setItems(data);
+      setItems(Array.isArray(data) ? data : []);
       setIsLoading(false);
     };
     loadData();
@@ -255,15 +254,18 @@ export default function App() {
 
                           {/* Smart suggestions */}
                           {(() => {
-                            const suggestions = ['Værktøj', 'Møbler', 'Auto', 'Maskiner'].filter(cat => cat !== selectedCategory).map(cat => {
-                              const count = items.filter(item =>
-                                item.category === cat &&
-                                (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                  item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                  item.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                              ).length;
-                              return { cat, count };
-                            }).filter(s => s.count > 0);
+                            const suggestions = CATEGORIES
+                              .filter(c => c.id !== selectedCategory)
+                              .map(c => {
+                                const count = (items || []).filter(item =>
+                                  item && item.category === c.id &&
+                                  (item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    item.sku?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    item.description?.toLowerCase().includes(searchQuery.toLowerCase()))
+                                ).length;
+                                return { cat: c.id, count };
+                              })
+                              .filter(s => s.count > 0);
 
                             if (suggestions.length > 0) {
                               return (

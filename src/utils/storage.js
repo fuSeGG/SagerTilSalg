@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { CATEGORIES } from './constants';
 
 const STORAGE_NAMESPACE = 'sts_';
 
@@ -116,12 +117,8 @@ export const storage = {
 
     // New helper to calculate next SKU (collision-safe)
     async getNextSku(category) {
-        const prefixes = {
-            'Værktøj': 'VR',
-            'Møbler': 'MB',
-            'Auto': 'AU',
-            'Maskiner': 'MA'
-        };
+        const prefixes = {};
+        CATEGORIES.forEach(cat => { prefixes[cat.id] = cat.skuPrefix; });
         const prefix = prefixes[category] || 'ST';
 
         try {

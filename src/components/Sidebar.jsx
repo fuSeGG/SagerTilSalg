@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Package, X, Lock, Heart, Wrench, Armchair, Car, Settings, Search, List, LayoutGrid, Palette } from 'lucide-react';
+import { Package, X, Lock, Heart, Search, List, LayoutGrid } from 'lucide-react';
 import ContactButton from './ContactButton';
+import { CATEGORIES } from '../utils/constants';
 
 const Sidebar = ({
     isOpen,
@@ -17,7 +17,8 @@ const Sidebar = ({
 }) => {
     // Calculate stats
     const stats = React.useMemo(() => {
-        const counts = { total: items.length, 'Værktøj': 0, 'Møbler': 0, 'Auto': 0, 'Maskiner': 0, 'Favoritter': favoritesCount };
+        const counts = { total: items.length, Favoritter: favoritesCount };
+        CATEGORIES.forEach(cat => { counts[cat.id] = 0; });
         items.forEach(item => { if (counts[item.category] !== undefined) counts[item.category]++; });
         return counts;
     }, [items, favoritesCount]);
@@ -25,10 +26,13 @@ const Sidebar = ({
     const categories = [
         { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-text-primary' },
         { label: 'Favoritter', key: 'Favoritter', count: stats['Favoritter'], icon: Heart, color: 'text-orange-500' },
-        { label: 'Værktøj', key: 'Værktøj', count: stats['Værktøj'], icon: Wrench, color: 'text-accent' },
-        { label: 'Møbler', key: 'Møbler', count: stats['Møbler'], icon: Armchair, color: 'text-text-secondary' },
-        { label: 'Auto', key: 'Auto', count: stats['Auto'], icon: Car, color: 'text-orange-500' },
-        { label: 'Maskiner', key: 'Maskiner', count: stats['Maskiner'], icon: Settings, color: 'text-blue-400' },
+        ...CATEGORIES.map(cat => ({
+            label: cat.label,
+            key: cat.id,
+            count: stats[cat.id],
+            icon: cat.icon,
+            color: cat.color
+        }))
     ];
 
     const sidebarContent = (
