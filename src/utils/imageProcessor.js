@@ -2,7 +2,7 @@
  * Utility to compress and resize images using Canvas API
  */
 
-export const processImage = (file, maxWidth = 800, quality = 0.8) => {
+export const processImage = (file, maxWidth = 1200, quality = 0.8) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -27,13 +27,14 @@ export const processImage = (file, maxWidth = 800, quality = 0.8) => {
                 ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const dataUrl = canvas.toDataURL('image/jpeg', quality);
-
-                // Check size (base64 is ~1.37x larger than binary)
-                // window.storage usually has a limit around 5-10MB total, 
-                // but individual keys might have smaller limits in some environments.
-                // We target ~200-500KB per image.
-                resolve(dataUrl);
+                // Export to WebP Blob for better compression/quality
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        resolve(blob);
+                    } else {
+                        reject(new Error('Canvas toBlob failed'));
+                    }
+                }, 'image/webp', quality);
             };
             img.onerror = reject;
         };

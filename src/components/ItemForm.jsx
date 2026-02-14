@@ -58,10 +58,15 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
 
             setIsProcessing(true);
             try {
-                setImageFile(file);
-                const compressed = await processImage(file);
-                setPreview(compressed);
+                const compressedBlob = await processImage(file);
+                // Store the compressed blob for uploading later
+                setImageFile(compressedBlob);
+
+                // Create a local URL for the preview
+                const previewUrl = URL.createObjectURL(compressedBlob);
+                setPreview(previewUrl);
             } catch (err) {
+                console.error('Image processing error:', err);
                 setFormErrors(prev => ({ ...prev, image: 'Kunne ikke behandle billedet. Prøv et andet format (JPG, PNG).' }));
             } finally {
                 setIsProcessing(false);
@@ -69,14 +74,16 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
         }
     };
 
-    const uploadImage = async (file, sku) => {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${sku}-${Math.random()}.${fileExt}`;
+    const uploadImage = async (blob, sku) => {
+        // We now always upload as webp
+        const fileName = `${sku}-${Math.random()}.webp`;
         const filePath = `${fileName}`;
 
         const { error: uploadError, data } = await supabase.storage
             .from('inventory')
-            .upload(filePath, file);
+            .upload(filePath, blob, {
+                contentType: 'image/webp'
+            });
 
         if (uploadError) {
             throw uploadError;
