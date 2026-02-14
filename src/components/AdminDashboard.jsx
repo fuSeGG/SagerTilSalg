@@ -106,50 +106,48 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
 
             {/* Inventory Container - Responsive List View */}
             <div className="bg-bg-secondary/40 border-x-2 border-b-2 border-border rounded-b-[2rem] md:rounded-b-[2.5rem] overflow-hidden">
-                <div className="overflow-x-auto custom-scrollbar -mx-[2px]">
-                    <table className="w-full text-left border-collapse min-w-[500px] md:min-w-full">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto custom-scrollbar -mx-[2px]">
+                    <table className="w-full text-left border-collapse w-full">
                         <thead className="bg-bg-primary/50">
                             <tr className="text-text-muted text-xs uppercase font-black tracking-[0.3em]">
-                                <th className="px-4 md:px-8 py-4 border-b border-border">Varer</th>
-                                <th className="px-4 py-4 border-b border-border hidden sm:table-cell">Ref</th>
-                                <th className="px-4 py-4 border-b border-border hidden lg:table-cell">Kategori</th>
+                                <th className="px-8 py-4 border-b border-border">Varer</th>
+                                <th className="px-4 py-4 border-b border-border">Ref</th>
+                                <th className="px-4 py-4 border-b border-border">Kategori</th>
                                 <th className="px-4 py-4 border-b border-border">Pris / Antal</th>
-                                <th className="px-4 md:px-8 py-4 border-b border-border text-right">Valg</th>
+                                <th className="px-8 py-4 border-b border-border text-right">Valg</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border/50">
                             {filteredItems.map((item) => (
                                 <tr key={item.sku} className="group hover:bg-bg-tertiary/30 transition-colors">
-                                    <td className="px-4 md:px-8 py-4">
-                                        <div className="flex items-center gap-3 md:gap-4">
-                                            <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl overflow-hidden bg-bg-primary border border-border flex-shrink-0">
+                                    <td className="px-8 py-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-bg-primary border border-border flex-shrink-0">
                                                 <img src={item.image} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all" />
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="text-text-primary font-black text-sm md:text-lg truncate max-w-[100px] sm:max-w-[200px] md:max-w-[300px] uppercase tracking-tighter italic leading-none mb-1">{item.name}</div>
-                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                                    <span className="sm:hidden text-xs font-black text-accent/50 tracking-widest uppercase">{item.sku}</span>
-                                                    <div className="text-text-muted text-xs font-bold truncate max-w-[100px] md:max-w-[200px] uppercase tracking-widest opacity-60">{item.description}</div>
-                                                </div>
+                                                <div className="text-text-primary font-black text-lg truncate max-w-[300px] uppercase tracking-tighter italic leading-none mb-1">{item.name}</div>
+                                                <div className="text-text-muted text-xs font-bold truncate max-w-[200px] uppercase tracking-widest opacity-60">{item.description}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4 font-black text-text-muted text-xs tracking-widest italic group-hover:text-accent transition-colors uppercase tabular-nums hidden sm:table-cell">
+                                    <td className="px-4 py-4 font-black text-text-muted text-xs tracking-widest italic group-hover:text-accent transition-colors uppercase tabular-nums">
                                         {item.sku}
                                     </td>
-                                    <td className="px-4 py-4 hidden lg:table-cell">
+                                    <td className="px-4 py-4">
                                         <span className="bg-bg-tertiary/50 text-text-secondary text-xs font-black px-2.5 py-1 rounded-md border border-border uppercase tracking-widest">
                                             {item.category}
                                         </span>
                                     </td>
                                     <td className="px-4 py-4">
                                         <div className="flex flex-col">
-                                            <span className="text-text-primary font-black text-sm md:text-base tracking-tighter italic leading-none">{item.price ? `${item.price},-` : '-'}</span>
-                                            <span className="text-text-muted font-bold tabular-nums text-xs md:text-xs uppercase tracking-widest mt-1">{item.quantity || 1} stk</span>
+                                            <span className="text-text-primary font-black text-base tracking-tighter italic leading-none">{item.price ? `${item.price},-` : '-'}</span>
+                                            <span className="text-text-muted font-bold tabular-nums text-xs uppercase tracking-widest mt-1">{item.quantity || 1} stk</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 md:px-8 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-1 md:gap-2">
+                                    <td className="px-8 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
                                             {deleteConfirm === item.sku ? (
                                                 <div className="flex items-center gap-1 animate-in slide-in-from-right-2">
                                                     <button onClick={() => onDelete(item.sku)} className="px-3 py-1.5 bg-error text-white hover:bg-error/80 rounded-lg font-black uppercase text-xs tracking-widest transition-all">Slet</button>
@@ -157,8 +155,8 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <button onClick={() => onEdit(item)} className="p-2 md:p-2.5 bg-bg-primary text-text-muted hover:text-accent border border-border rounded-lg transition-all" title="Rediger"><Edit className="size-4" /></button>
-                                                    <button onClick={() => setDeleteConfirm(item.sku)} className="p-2 md:p-2.5 bg-bg-primary text-text-muted hover:text-error border border-border rounded-lg transition-all" title="Slet"><Trash2 className="size-4" /></button>
+                                                    <button onClick={() => onEdit(item)} className="p-2.5 bg-bg-primary text-text-muted hover:text-accent border border-border rounded-lg transition-all" title="Rediger"><Edit className="size-4" /></button>
+                                                    <button onClick={() => setDeleteConfirm(item.sku)} className="p-2.5 bg-bg-primary text-text-muted hover:text-error border border-border rounded-lg transition-all" title="Slet"><Trash2 className="size-4" /></button>
                                                 </>
                                             )}
                                         </div>
@@ -167,6 +165,61 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden flex flex-col gap-3 p-4">
+                    {filteredItems.map((item) => (
+                        <div key={item.sku} className="bg-bg-primary/50 border border-border rounded-2xl p-3 flex gap-4 shadow-sm relative overflow-hidden group">
+                            {/* Delete Confirmation Overlay */}
+                            {deleteConfirm === item.sku && (
+                                <div className="absolute inset-0 bg-bg-primary/95 z-20 flex items-center justify-center gap-3 animate-in fade-in duration-200 backdrop-blur-sm">
+                                    <span className="text-text-primary font-bold text-xs uppercase tracking-widest">Slet vare?</span>
+                                    <button onClick={() => onDelete(item.sku)} className="px-4 py-2 bg-error text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-error/20">Bekræft</button>
+                                    <button onClick={() => setDeleteConfirm(null)} className="p-2 bg-bg-tertiary text-text-muted rounded-xl border border-border"><X className="size-4" /></button>
+                                </div>
+                            )}
+
+                            <div className="w-20 h-24 rounded-xl bg-bg-secondary border border-border overflow-hidden flex-shrink-0">
+                                <img src={item.image} alt="" className="w-full h-full object-cover" />
+                            </div>
+
+                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                <div>
+                                    <div className="flex justify-between items-start gap-2">
+                                        <h4 className="text-text-primary font-black text-base uppercase italic tracking-tighter leading-none truncate">{item.name}</h4>
+                                        <span className="text-accent font-black text-sm tracking-tighter whitespace-nowrap">{item.price},-</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-[10px] font-bold bg-bg-tertiary px-1.5 py-0.5 rounded text-text-secondary uppercase tracking-wider">{item.category}</span>
+                                        <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{item.sku}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-end justify-between mt-2">
+                                    <div className="flex items-center gap-1.5 bg-bg-tertiary/50 px-2 py-1 rounded-lg border border-border/50">
+                                        <span className="text-text-muted text-[10px] font-bold uppercase tracking-widest">Lager:</span>
+                                        <span className="text-text-primary text-xs font-black tabular-nums">{item.quantity || 1}</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => onEdit(item)}
+                                            className="p-2 bg-bg-primary hover:bg-bg-secondary text-text-secondary border border-border rounded-lg active:scale-95 transition-all"
+                                        >
+                                            <Edit className="size-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => setDeleteConfirm(item.sku)}
+                                            className="p-2 bg-bg-primary hover:bg-error hover:text-white text-text-muted border border-border rounded-lg active:scale-95 transition-all"
+                                        >
+                                            <Trash2 className="size-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {filteredItems.length === 0 && (
