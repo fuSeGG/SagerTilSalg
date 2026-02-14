@@ -1,3 +1,5 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Menu, Heart, Package, Printer, FileText, ArrowRight, Bookmark, Search } from 'lucide-react';
 import { formatFavoritesAsText, downloadTextFile } from './utils/exportUtils';
 import { storage } from './utils/storage';
 import { CATEGORIES } from './utils/constants';
