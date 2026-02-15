@@ -4,11 +4,11 @@ import { processImage } from '../utils/imageProcessor';
 import { supabase } from '../utils/supabaseClient';
 import { CATEGORIES } from '../utils/constants';
 
-const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
+const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => {
     const [formData, setFormData] = useState(initialData || {
         sku: 'Loading...',
         name: '',
-        category: CATEGORIES[0].id,
+        category: (categories && categories.length > 0) ? categories[0].id : 'Værktøj',
         price: '',
         quantity: 1,
         description: '',
@@ -18,12 +18,12 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     });
 
     React.useEffect(() => {
-        if (!initialData && getNextSku) {
-            getNextSku(CATEGORIES[0].id).then(sku => {
+        if (!initialData && getNextSku && categories && categories.length > 0) {
+            getNextSku(categories[0].id, categories).then(sku => {
                 setFormData(prev => ({ ...prev, sku }));
             });
         }
-    }, [initialData, getNextSku]);
+    }, [initialData, getNextSku, categories]);
     const [preview, setPreview] = useState(initialData?.image || null);
     const [imageFile, setImageFile] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -33,7 +33,9 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
     const fileInputRef = useRef(null);
     const formTopRef = useRef(null);
 
-    const categories = CATEGORIES.map(c => c.id);
+    // Use dynamic categories if provided, otherwise fallback is handled by App.jsx passing them
+    const activeCategories = (categories && categories.length > 0) ? categories : CATEGORIES;
+    const categoryIds = activeCategories.map(c => c.id);
 
     // Clear specific error when field changes
     const clearError = (field) => {
@@ -256,14 +258,14 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku }) => {
                                     const newCat = e.target.value;
                                     setFormData(prev => ({ ...prev, category: newCat, sku: 'Loading...' }));
                                     if (!initialData && getNextSku) {
-                                        getNextSku(newCat).then(sku => {
+                                        getNextSku(newCat, categories).then(sku => {
                                             setFormData(prev => ({ ...prev, sku }));
                                         });
                                     }
                                 }}
                                 className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-text-primary font-bold focus:ring-2 focus:ring-accent focus:outline-none appearance-none"
                             >
-                                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                {categoryIds.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
                     </div>

@@ -116,9 +116,10 @@ export const storage = {
     },
 
     // New helper to calculate next SKU (collision-safe)
-    async getNextSku(category) {
+    async getNextSku(category, dynamicCategories = null) {
+        const activeCategories = dynamicCategories || CATEGORIES;
         const prefixes = {};
-        CATEGORIES.forEach(cat => { prefixes[cat.id] = cat.skuPrefix; });
+        activeCategories.forEach(cat => { prefixes[cat.id] = cat.skuPrefix; });
         const prefix = prefixes[category] || 'ST';
 
         try {

@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive } from 'lucide-react';
+import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive, Settings } from 'lucide-react';
 import { getStorageUsage } from '../utils/storageUsage';
 import { CATEGORIES } from '../utils/constants';
 
-const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
+const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [storageInfo, setStorageInfo] = useState(null);
+
+    // Category Management State
+    const [isManagingCategories, setIsManagingCategories] = useState(false);
+    const [newCategory, setNewCategory] = useState({ label: '', skuPrefix: '', icon: 'Box', color: 'text-purple-500' });
+    const [catDeleteConfirm, setCatDeleteConfirm] = useState(null); // ID of category to delete
+    const [catDeleteInput, setCatDeleteInput] = useState(''); // Text input for confirmation
+
+    // Fallback if categories prop is empty
+    const activeCategories = (categories && categories.length > 0) ? categories : CATEGORIES;
 
     useEffect(() => {
         getStorageUsage().then(setStorageInfo);
@@ -50,7 +59,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                     <span className="text-text-muted text-xs font-black uppercase tracking-widest mb-1">Total Beholdning</span>
                     <span className="text-3xl font-black text-text-primary tracking-tighter tabular-nums leading-none">{items.length}</span>
                 </div>
-                {CATEGORIES.map(cat => (
+                {activeCategories.map(cat => (
                     <div key={cat.id} className="flex flex-col border-l-2 border-border pl-4 hover:border-text-muted transition-colors">
                         <span className="text-text-muted text-xs font-black uppercase tracking-widest mb-1">{cat.label}</span>
                         <span className="text-2xl font-black text-text-secondary tracking-tighter tabular-nums leading-none">
@@ -82,6 +91,193 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack }) => {
                     )}
                 </div>
             </div>
+
+            {/* Category Management Toggle */}
+            <div className="flex justify-end mb-6">
+                <button
+                    onClick={() => setIsManagingCategories(!isManagingCategories)}
+                    className="text-xs font-bold uppercase tracking-widest text-text-muted hover:text-accent transition-colors flex items-center gap-2"
+                >
+                    <Settings className="size-4" />
+                    <span>{isManagingCategories ? 'Skjul kategorier' : 'Administrer kategorier'}</span>
+                </button>
+            </div>
+
+            {/* Category Management Section */}
+            {isManagingCategories && (
+                <div className="bg-bg-secondary border-2 border-accent/20 rounded-3xl p-6 mb-8 animate-in fade-in slide-in-from-top-4">
+                    <h3 className="text-xl font-black text-text-primary uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+                        <Package className="text-accent size-6" />
+                        Kategorier
+                    </h3>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                        {/* New Category Form */}
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest">Tilføj Ny</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                <input
+                                    placeholder="Navn (f.eks. Cykler)"
+                                    value={newCategory.label}
+                                    onChange={e => setNewCategory({ ...newCategory, label: e.target.value })}
+                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none"
+                                />
+                                <input
+                                    placeholder="Prefix (f.eks. CYK)"
+                                    maxLength={4}
+                                    value={newCategory.skuPrefix}
+                                    onChange={e => setNewCategory({ ...newCategory, skuPrefix: e.target.value.toUpperCase() })}
+                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none uppercase font-mono"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {/* Icon Picker (Simplified) */}
+                                <select
+                                    value={newCategory.icon}
+                                    onChange={e => setNewCategory({ ...newCategory, icon: e.target.value })}
+                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none"
+                                >
+                                    {['Box', 'Wrench', 'Armchair', 'Car', 'Settings', 'Package', 'User', 'Star', 'Key', 'Shield', 'Tag', 'Hash', 'FileText', 'Image', 'LayoutGrid', 'List'].map(icon => (
+                                        <option key={icon} value={icon}>{icon}</option>
+                                    ))}
+                                </select>
+                                {/* Color Picker (Simplified) */}
+                                <select
+                                    value={newCategory.color}
+                                    onChange={e => setNewCategory({ ...newCategory, color: e.target.value })}
+                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none"
+                                >
+                                    <option value="text-accent">Dyb Te</option>
+                                    <option value="text-text-secondary">Grå</option>
+                                    <option value="text-orange-500">Orange</option>
+                                    <option value="text-blue-400">Blå</option>
+                                    <option value="text-purple-500">Lilla</option>
+                                    <option value="text-green-500">Grøn</option>
+                                    <option value="text-red-500">Rød</option>
+                                </select>
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    if (!newCategory.label || !newCategory.skuPrefix) return;
+                                    const catId = newCategory.label; // Use label as ID for simplicity
+
+                                    try {
+                                        // We need the PIN to save
+                                        const pin = prompt('Indtast PIN for at gemme kategori:');
+                                        if (!pin) return;
+
+                                        const res = await fetch('/admin/save-category', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                category: { id: catId, ...newCategory },
+                                                pin
+                                            })
+                                        });
+
+                                        if (res.ok) {
+                                            window.location.reload(); // Simple reload to refresh
+                                        } else {
+                                            alert('Fejl: Kunne ikke gemme kategori');
+                                        }
+                                    } catch (e) {
+                                        console.error(e);
+                                        alert('Fejl');
+                                    }
+                                }}
+                                className="w-full bg-accent hover:bg-accent-hover text-accent-contrast py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all"
+                            >
+                                Opret Kategori
+                            </button>
+                        </div>
+
+                        {/* Existing Categories List */}
+                        <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest sticky top-0 bg-bg-secondary pb-2 z-10">Eksisterende</h4>
+                            {activeCategories.map(cat => {
+                                const itemCount = items.filter(i => i.category === cat.id).length;
+                                const isDeleting = catDeleteConfirm === cat.id;
+                                const isProtected = (cat.id === 'Værktøj' || cat.id === 'Materialer'); // Example protection if needed, currently not enforcing
+
+                                return (
+                                    <div key={cat.id} className="bg-bg-primary border border-border rounded-xl p-3 flex items-center justify-between group hover:border-text-muted transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-lg bg-bg-tertiary ${cat.color}`}>
+                                                {/* We don't have dynamic icon rendering here easily without passing getIconComponent, relying on text fallback or simple icon */}
+                                                <Package className="size-4" />
+                                            </div>
+                                            <div>
+                                                <div className="font-bold text-text-primary text-sm flex items-center gap-2">
+                                                    {cat.label}
+                                                    <span className="font-mono text-[10px] text-text-muted bg-bg-tertiary px-1 rounded">{cat.skuPrefix}</span>
+                                                </div>
+                                                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{itemCount} varer</div>
+                                            </div>
+                                        </div>
+
+                                        {isDeleting ? (
+                                            <div className="flex flex-col items-end gap-2 animate-in slide-in-from-right-4">
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-[10px] font-bold text-error uppercase">Skriv PRÆCIS:</span>
+                                                    <span className="text-[10px] font-black text-text-primary select-all">{cat.id}</span>
+                                                </div>
+                                                <input
+                                                    className="w-32 bg-bg-tertiary border border-error rounded-lg px-2 py-1 text-xs font-bold focus:outline-none placeholder:text-text-muted/50"
+                                                    placeholder="Skriv navn her..."
+                                                    value={catDeleteInput}
+                                                    onChange={e => setCatDeleteInput(e.target.value)}
+                                                    autoFocus
+                                                />
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        onClick={async () => {
+                                                            if (catDeleteInput !== cat.id) return;
+                                                            const pin = prompt('Indtast PIN for at slette:');
+                                                            if (!pin) return;
+
+                                                            const res = await fetch('/admin/delete-category', {
+                                                                method: 'POST',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ id: cat.id, pin })
+                                                            });
+
+                                                            if (res.ok) window.location.reload();
+                                                            else alert('Kunne ikke slette (måske har den stadig varer?)');
+                                                        }}
+                                                        disabled={catDeleteInput !== cat.id}
+                                                        className="px-2 py-1 bg-error text-white rounded text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        Slet
+                                                    </button>
+                                                    <button onClick={() => { setCatDeleteConfirm(null); setCatDeleteInput(''); }} className="px-2 py-1 bg-bg-tertiary rounded text-xs">Annuller</button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    if (itemCount > 0) {
+                                                        alert('Du kan ikke slette en kategori, der indeholder varer. Slet eller flyt varerne først.');
+                                                        return;
+                                                    }
+                                                    setCatDeleteConfirm(cat.id);
+                                                    setCatDeleteInput('');
+                                                }}
+                                                disabled={itemCount > 0}
+                                                className={`p-2 rounded-lg border transition-all ${itemCount > 0
+                                                    ? 'opacity-20 cursor-not-allowed border-transparent text-text-muted bg-bg-tertiary'
+                                                    : 'border-border hover:border-error hover:text-error hover:bg-error/10 text-text-muted cursor-pointer'}`}
+                                                title={itemCount > 0 ? "Kan ikke slette kategori med varer" : "Slet kategori"}
+                                            >
+                                                <Trash2 className="size-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Inventory List Header */}
             <div className="bg-bg-secondary border-2 border-border rounded-t-[2rem] md:rounded-t-[2.5rem] px-6 md:px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">

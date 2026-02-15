@@ -1,4 +1,4 @@
-import { Wrench, Armchair, Car, Settings, Box, Package } from 'lucide-react';
+import { Wrench, Armchair, Car, Settings, Box, Package, User, Star, Key, Shield, Tag, Hash, FileText, Image, LayoutGrid, List } from 'lucide-react';
 
 export const CATEGORIES = [
     {
@@ -38,5 +38,27 @@ export const CATEGORIES = [
     }
 ];
 
-export const GET_CATEGORY_BY_ID = (id) => CATEGORIES.find(c => c.id === id);
+export const ICON_MAP = {
+    'Wrench': Wrench,
+    'Armchair': Armchair,
+    'Car': Car,
+    'Settings': Settings,
+    'Box': Box,
+    'Package': Package,
+    'User': User,
+    'Star': Star,
+    'Key': Key,
+    'Shield': Shield,
+    'Tag': Tag,
+    'Hash': Hash,
+    'FileText': FileText,
+    'Image': Image,
+    'LayoutGrid': LayoutGrid,
+    'List': List
+};
+
+export const getIconComponent = (iconName) => {
+    return ICON_MAP[iconName] || Package;
+};
+
 export const DEFAULT_CATEGORY_ICON = Package;

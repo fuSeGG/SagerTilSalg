@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Menu, Heart, Package, Printer, FileText, ArrowRight, Bookmark, Search } from 'lucide-react';
 import { formatFavoritesAsText, downloadTextFile } from './utils/exportUtils';
 import { storage } from './utils/storage';
-import { CATEGORIES } from './utils/constants';
+import { CATEGORIES, getIconComponent } from './utils/constants';
+import { supabase } from './utils/supabaseClient';
 import { ItemCard, ItemRow } from './components/InventoryItems';
 import ItemModal from './components/ItemModal';
 
@@ -32,13 +33,35 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [adminPin, setAdminPin] = useState(null); // Store verified PIN
 
-  // Load items on mount
+  // Dynamic categories state
+  const [categories, setCategories] = useState([]);
+
+  // Load items and categories on mount
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      const data = await storage.getAllItems();
-      setItems(Array.isArray(data) ? data : []);
-      setIsLoading(false);
+      try {
+        // Parallel fetch for speed
+        const [itemsData, categoriesData] = await Promise.all([
+          storage.getAllItems(),
+          supabase.from('categories').select('*').order('sort_order', { ascending: true })
+        ]);
+
+        setItems(Array.isArray(itemsData) ? itemsData : []);
+
+        // Use DB categories if available, else fallback
+        if (categoriesData.data && categoriesData.data.length > 0) {
+          setCategories(categoriesData.data);
+        } else {
+          console.log('Using fallback categories');
+          setCategories(CATEGORIES);
+        }
+      } catch (err) {
+        console.error('Failed to load data:', err);
+        setCategories(CATEGORIES); // Safety fallback
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadData();
   }, []);
@@ -256,7 +279,9 @@ export default function App() {
 
                           {/* Smart suggestions */}
                           {(() => {
-                            const suggestions = CATEGORIES
+                            // Use dynamic categories for suggestions
+                            const activeCats = categories.length > 0 ? categories : CATEGORIES;
+                            const suggestions = activeCats
                               .filter(c => c.id !== selectedCategory)
                               .map(c => {
                                 const count = (items || []).filter(item =>
@@ -339,6 +364,7 @@ export default function App() {
             }}
             onDelete={deleteItem}
             onBack={() => setCurrentView('shop')}
+            categories={categories}
           />
         );
 
@@ -348,6 +374,7 @@ export default function App() {
             getNextSku={storage.getNextSku}
             onSave={saveItem}
             onCancel={() => setCurrentView('admin')}
+            categories={categories}
           />
         );
 
@@ -360,6 +387,7 @@ export default function App() {
               setEditingItem(null);
               setCurrentView('admin');
             }}
+            categories={categories}
           />
         );
 
@@ -383,6 +411,7 @@ export default function App() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         currentView={currentView}
+        categories={categories}
       />
 
       {/* Quick Access Favorites Button (Desktop only, mobile has it in header) */}

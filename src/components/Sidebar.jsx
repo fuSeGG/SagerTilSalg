@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Package, X, Lock, Heart, Search, List, LayoutGrid } from 'lucide-react';
 import ContactButton from './ContactButton';
-import { CATEGORIES } from '../utils/constants';
+import { CATEGORIES, ICON_MAP } from '../utils/constants';
 
 const Sidebar = ({
     isOpen,
@@ -19,19 +19,26 @@ const Sidebar = ({
     // Calculate stats
     const stats = React.useMemo(() => {
         const counts = { total: items.length, Favoritter: favoritesCount };
-        CATEGORIES.forEach(cat => { counts[cat.id] = 0; });
+        // Initialize counts for all categories (dynamic or static)
+        const activeCategories = (props.categories && props.categories.length > 0) ? props.categories : CATEGORIES;
+        activeCategories.forEach(cat => { counts[cat.id] = 0; });
+
         items.forEach(item => { if (counts[item.category] !== undefined) counts[item.category]++; });
         return counts;
-    }, [items, favoritesCount]);
+    }, [items, favoritesCount, props.categories]);
+
+    // Use dynamic categories or fallback
+    const activeCategories = (props.categories && props.categories.length > 0) ? props.categories : CATEGORIES;
 
     const categories = [
         { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-text-primary' },
         { label: 'Favoritter', key: 'Favoritter', count: stats['Favoritter'], icon: Heart, color: 'text-orange-500' },
-        ...CATEGORIES.map(cat => ({
+        ...activeCategories.map(cat => ({
             label: cat.label,
             key: cat.id,
             count: stats[cat.id],
-            icon: cat.icon,
+            // Handle both Lucide components (static) and string names (dynamic from DB)
+            icon: typeof cat.icon === 'string' ? (ICON_MAP[cat.icon] || Package) : cat.icon,
             color: cat.color
         }))
     ];
