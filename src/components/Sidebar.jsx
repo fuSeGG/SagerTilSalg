@@ -135,8 +135,8 @@ const Sidebar = ({
                                     {cat.count}
                                 </span>
                             </button>
-                            {/* Add separator after the first two special categories (Favoritter and Alle) */}
-                            {index === 1 && (
+                            {/* Add separator after the first special category (Favoritter) */}
+                            {index === 0 && (
                                 <div className="mx-2 my-3 border-b border-bg-secondary/50" />
                             )}
                         </React.Fragment>
