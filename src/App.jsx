@@ -11,6 +11,8 @@ import PinAuth from './components/PinAuth';
 import AdminDashboard from './components/AdminDashboard';
 import ItemForm from './components/ItemForm';
 import Sidebar from './components/Sidebar';
+import ContactButton from './components/ContactButton';
+import { List, LayoutGrid } from 'lucide-react';
 
 // --- Main App Controller ---
 export default function App() {
@@ -166,20 +168,59 @@ export default function App() {
               </button>
             </div>
 
-            {/* Desktop Header Context */}
+            {/* Desktop Header Context / Universal Header Controls */}
             <div className="flex-shrink-0 px-6 py-4 bg-bg-secondary/20 border-b border-border/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
+              <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-3">
-                  <h2 className="text-2xl md:text-4xl font-black text-text-primary uppercase italic tracking-tighter leading-none">
+                  <h2 className="text-2xl md:text-4xl font-black text-text-primary uppercase italic tracking-tighter leading-none truncate">
                     {selectedCategory === 'Alle' ? 'Alle Varer' : selectedCategory}
                   </h2>
-                  <span className="text-xs text-text-secondary font-bold not-italic tracking-normal bg-bg-tertiary/50 px-2 py-1 rounded-lg border border-border/50">
+                  <span className="text-xs text-text-secondary font-bold not-italic tracking-normal bg-bg-tertiary/50 px-2 py-1 rounded-lg border border-border/50 flex-shrink-0">
                     {filteredItems.length} varer
                   </span>
                 </div>
-                <p className="text-text-muted mt-1.5 text-xs font-bold uppercase tracking-[0.3em]">
+                <p className="text-text-muted mt-1.5 text-xs font-bold uppercase tracking-[0.3em] overflow-hidden text-ellipsis whitespace-nowrap">
                   {selectedCategory === 'Favoritter' ? 'Dine gemte favoritter' : 'Gennemse vores lager'}
                 </p>
+              </div>
+
+              {/* Global Controls: Search & View Mode */}
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="relative group w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-text-muted group-focus-within:text-accent transition-colors" />
+                  <input
+                    type="text"
+                    placeholder="Søg i lager..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-bg-secondary border border-border rounded-xl py-2 pl-9 pr-8 text-xs font-bold text-text-primary focus:outline-none focus:border-accent/50 transition-all placeholder:text-text-muted uppercase tracking-widest shadow-inner"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex p-1 bg-bg-secondary rounded-xl border border-border shadow-inner">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${viewMode === 'list' ? 'bg-accent text-accent-contrast shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-secondary'}`}
+                  >
+                    <List className="size-3" />
+                    <span className="hidden lg:inline">Liste</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${viewMode === 'grid' ? 'bg-accent text-accent-contrast shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-secondary'}`}
+                  >
+                    <LayoutGrid className="size-3" />
+                    <span className="hidden lg:inline">Gitter</span>
+                  </button>
+                </div>
               </div>
 
               {/* Action Buttons for Favorites View */}
@@ -344,6 +385,20 @@ export default function App() {
                 </div>
               )}
             </div>
+
+            {/* Subtle Footer for Admin Access */}
+            <footer className="mt-auto py-8 border-t border-border/30 px-6 flex flex-col items-center gap-4 bg-bg-secondary/10">
+              <div className="flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition-opacity">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted">Mårsøvej 1, 4300 Holbæk</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted">+45 40 78 14 88</p>
+              </div>
+              <button
+                onClick={() => setCurrentView('pin')}
+                className="text-[10px] font-black uppercase text-text-muted hover:text-accent tracking-[0.2em] transition-all flex items-center gap-2"
+              >
+                <span>Administrer Lagerstyring</span>
+              </button>
+            </footer>
           </div>
         );
 
@@ -370,6 +425,7 @@ export default function App() {
             onDelete={deleteItem}
             onBack={() => setCurrentView('shop')}
             categories={categories}
+            onInspect={(item) => setSelectedItem(item)}
           />
         );
 
@@ -437,7 +493,7 @@ export default function App() {
       </button>
 
       {/* Main Content Area (Offset by Sidebar on Desktop) */}
-      <main className={`flex-1 flex flex-col h-full bg-bg-primary transition-all duration-300 md:ml-64 ${currentView !== 'shop' ? 'z-50 bg-bg-primary fixed inset-0 md:static' : ''} w-full max-w-[100vw] overflow-x-auto`}>
+      <main className={`flex-1 flex flex-col h-full bg-bg-primary transition-all duration-300 ${currentView === 'shop' || currentView === 'pin' ? 'md:ml-64' : 'w-full'} ${currentView !== 'shop' ? 'z-50 bg-bg-primary fixed inset-0 md:static' : ''} w-full max-w-[100vw] overflow-x-auto`}>
         {renderContent()}
       </main>
 

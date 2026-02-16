@@ -3,7 +3,7 @@ import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive
 import { getStorageUsage } from '../utils/storageUsage';
 import { CATEGORIES, COLORS, ICON_MAP, getIconComponent } from '../utils/constants';
 
-const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [] }) => {
+const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [], onInspect }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [storageInfo, setStorageInfo] = useState(null);
@@ -427,7 +427,11 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                         </thead>
                         <tbody className="divide-y divide-border/50">
                             {filteredItems.map((item) => (
-                                <tr key={item.sku} className="group hover:bg-bg-tertiary/30 transition-colors">
+                                <tr
+                                    key={item.sku}
+                                    onClick={() => onInspect?.(item)}
+                                    className="group hover:bg-bg-tertiary/30 transition-colors cursor-pointer"
+                                >
                                     <td className="px-8 py-4">
                                         <div className="flex items-center gap-4">
                                             <div className="w-14 h-14 rounded-xl overflow-hidden bg-bg-primary border border-border flex-shrink-0 relative">
@@ -458,7 +462,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                             <span className="text-text-muted font-bold tabular-nums text-xs uppercase tracking-widest mt-1">{item.quantity || 1} stk</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-4 text-right">
+                                    <td className="px-8 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                                         <div className="flex items-center justify-end gap-2">
                                             {deleteConfirm === item.sku ? (
                                                 <div className="flex items-center gap-1 animate-in slide-in-from-right-2">
@@ -482,7 +486,11 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                 {/* Mobile Card View */}
                 <div className="md:hidden flex flex-col gap-3 p-4">
                     {filteredItems.map((item) => (
-                        <div key={item.sku} className="bg-bg-primary/50 border border-border rounded-2xl p-3 flex gap-4 shadow-sm relative overflow-hidden group">
+                        <div
+                            key={item.sku}
+                            onClick={() => onInspect?.(item)}
+                            className="bg-bg-primary/50 border border-border rounded-2xl p-3 flex gap-4 shadow-sm relative overflow-hidden group cursor-pointer active:scale-[0.98] transition-all"
+                        >
                             {/* Delete Confirmation Overlay */}
                             {deleteConfirm === item.sku && (
                                 <div className="absolute inset-0 bg-bg-primary/95 z-20 flex items-center justify-center gap-3 animate-in fade-in duration-200 backdrop-blur-sm">
@@ -514,7 +522,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                         <span className="text-text-primary text-xs font-black tabular-nums">{item.quantity || 1}</span>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => onEdit(item)}
                                             className="p-2 bg-bg-primary hover:bg-bg-secondary text-text-secondary border border-border rounded-lg active:scale-95 transition-all"

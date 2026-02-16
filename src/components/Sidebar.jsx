@@ -30,8 +30,6 @@ const Sidebar = ({
         return counts;
     }, [items, favoritesCount, activeCategories]);
 
-    // activeCategories is now defined at the top of the component scope
-
     const categories = [
         { label: 'Favoritter', key: 'Favoritter', count: stats['Favoritter'], icon: Heart, color: 'text-orange-500' },
         { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-text-primary' },
@@ -65,45 +63,6 @@ const Sidebar = ({
                 <p className="text-text-muted text-xs font-black uppercase tracking-[0.2em] mt-2 mb-2">
                     Professionel genbrug
                 </p>
-            </div>
-
-            {/* Search and View Mode */}
-            <div className="px-4 py-4 space-y-4 border-b border-bg-secondary">
-                <div className="relative group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-text-muted group-focus-within:text-accent transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Søg i lager..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-bg-secondary border border-border rounded-lg py-2 pl-9 pr-8 text-xs font-bold text-text-primary focus:outline-none focus:border-accent/50 transition-all placeholder:text-text-muted uppercase tracking-widest"
-                    />
-                    {searchQuery && (
-                        <button
-                            onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
-                        >
-                            <X className="size-3.5" />
-                        </button>
-                    )}
-                </div>
-
-                <div className="flex p-1 bg-bg-secondary rounded-lg border border-border">
-                    <button
-                        onClick={() => setViewMode('list')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-md text-xs font-black uppercase tracking-tighter transition-all ${viewMode === 'list' ? 'bg-accent text-accent-contrast' : 'text-text-muted hover:text-text-secondary'}`}
-                    >
-                        <List className="size-3" />
-                        <span>Liste</span>
-                    </button>
-                    <button
-                        onClick={() => setViewMode('grid')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-md text-xs font-black uppercase tracking-tighter transition-all ${viewMode === 'grid' ? 'bg-accent text-accent-contrast' : 'text-text-muted hover:text-text-secondary'}`}
-                    >
-                        <LayoutGrid className="size-3" />
-                        <span>Gitter</span>
-                    </button>
-                </div>
             </div>
 
             {/* Navigation / Categories */}
@@ -142,20 +101,6 @@ const Sidebar = ({
                         </React.Fragment>
                     ))}
                 </div>
-
-                <div className="mt-8 pt-4 border-t border-bg-secondary space-y-1">
-                    <h3 className="text-text-muted text-xs font-black uppercase tracking-[0.2em] px-2 mb-3">Admin</h3>
-                    <button
-                        onClick={() => {
-                            onAdminClick();
-                            if (window.innerWidth < 768) onClose();
-                        }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-bg-secondary transition-all group border border-transparent hover:border-border"
-                    >
-                        <Lock className="size-4 text-text-muted group-hover:text-accent transition-colors" />
-                        <span className="text-[11px] font-black uppercase tracking-wide text-text-secondary group-hover:text-text-primary">Lagerstyring</span>
-                    </button>
-                </div>
             </div>
 
             {/* Footer */}
@@ -165,14 +110,9 @@ const Sidebar = ({
                     label="Ring for bestilling"
                     className="w-full mb-2 gap-2"
                 />
-                <div className="text-center space-y-1">
-                    <p className="text-text-secondary text-xs font-bold uppercase tracking-tight">Mårsøvej 1, 4300 Holbæk</p>
-                    <p className="text-text-muted text-xs font-bold uppercase tracking-widest">+45 40 78 14 88</p>
-                </div>
             </div>
         </div>
     );
-
 
     return (
         <>
