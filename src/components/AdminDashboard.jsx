@@ -122,11 +122,14 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                     onChange={e => {
                                         const label = e.target.value;
                                         // Auto-generate prefix
-                                        let prefix = label.substring(0, 2).toUpperCase();
-                                        const existingPrefixes = activeCategories.map(c => c.skuPrefix);
+                                        const nameStart = label.replace(/[^a-zA-ZæøåÆØÅ]/g, '').substring(0, 3).toUpperCase();
+                                        let prefix = nameStart.substring(0, 2);
 
-                                        if (existingPrefixes.includes(prefix)) {
-                                            prefix = label.substring(0, 3).toUpperCase();
+                                        // Check against existing prefixes (handling both camelCase and snake_case for safety)
+                                        const existingPrefixes = activeCategories.map(c => (c.skuPrefix || c.sku_prefix || '').toUpperCase());
+
+                                        if (existingPrefixes.includes(prefix) && nameStart.length >= 3) {
+                                            prefix = nameStart.substring(0, 3);
                                         }
 
                                         setNewCategory({ ...newCategory, label, skuPrefix: prefix });

@@ -51,7 +51,12 @@ export default function App() {
 
         // Use DB categories if available, else fallback
         if (categoriesData.data && categoriesData.data.length > 0) {
-          setCategories(categoriesData.data);
+          // Normalize DB categories (snake_case to camelCase)
+          const normalized = categoriesData.data.map(cat => ({
+            ...cat,
+            skuPrefix: cat.sku_prefix // Map sku_prefix from DB to skuPrefix for UI
+          }));
+          setCategories(normalized);
         } else {
           console.log('Using fallback categories');
           setCategories(CATEGORIES);
