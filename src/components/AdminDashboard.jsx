@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Trigger redeploy
 import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive, Settings, ChevronDown } from 'lucide-react';
 import { getStorageUsage } from '../utils/storageUsage';
 import { CATEGORIES, COLORS, ICON_MAP, getIconComponent } from '../utils/constants';
