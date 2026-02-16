@@ -11,6 +11,7 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
     // Category Management State
     const [isManagingCategories, setIsManagingCategories] = useState(false);
     const [newCategory, setNewCategory] = useState({ label: '', skuPrefix: '', icon: 'Box', color: 'text-purple-500' });
+    const [editingCategory, setEditingCategory] = useState(null);
     const [catDeleteConfirm, setCatDeleteConfirm] = useState(null); // ID of category to delete
     const [catDeleteInput, setCatDeleteInput] = useState(''); // Text input for confirmation
 
@@ -111,62 +112,83 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                         Kategorier
                     </h3>
 
-                    <div className="grid md:grid-cols-2 gap-8">
-                        {/* New Category Form */}
-                        <div className="space-y-4">
-                            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest">Tilføj Ny</h4>
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        {/* New/Edit Category Form */}
+                        <div className={`space-y-4 lg:col-span-1 border-r-0 lg:border-r border-border pr-0 lg:pr-8 ${editingCategory ? 'bg-bg-tertiary/20 p-4 rounded-2xl border border-dashed border-accent/30' : ''}`}>
+                            <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest">
+                                    {editingCategory ? `Redigerer: ${editingCategory.label}` : 'Tilføj Ny Kategori'}
+                                </h4>
+                                {editingCategory && (
+                                    <button
+                                        onClick={() => setEditingCategory(null)}
+                                        className="text-[10px] font-black uppercase text-text-muted hover:text-error transition-colors"
+                                    >
+                                        Annuller
+                                    </button>
+                                )}
+                            </div>
+
                             {(() => {
-                                const usedIcons = activeCategories.map(c => c.icon);
+                                // Normalize used icons to names for the indicator logic
+                                const usedIcons = activeCategories.map(c => {
+                                    if (typeof c.icon === 'string') return c.icon;
+                                    // If it's a component, find its name in ICON_MAP
+                                    const entry = Object.entries(ICON_MAP).find(([name, comp]) => comp === c.icon);
+                                    return entry ? entry[0] : null;
+                                }).filter(Boolean);
+
                                 const usedColors = activeCategories.map(c => c.color);
+                                const currentData = editingCategory || newCategory;
+                                const isEditing = !!editingCategory;
 
                                 return (
-                                    <>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <input
-                                                placeholder="Kategorinavn (f.eks. Cykler)"
-                                                value={newCategory.label}
-                                                onChange={e => {
-                                                    const label = e.target.value;
-                                                    // Auto-generate prefix
-                                                    const nameStart = label.replace(/[^a-zA-ZæøåÆØÅ]/g, '').substring(0, 3).toUpperCase();
-                                                    let prefix = nameStart.substring(0, 2);
-
-                                                    // Check against existing prefixes (handling both camelCase and snake_case for safety)
-                                                    const existingPrefixes = activeCategories.map(c => (c.skuPrefix || c.sku_prefix || '').toUpperCase());
-
-                                                    if (existingPrefixes.includes(prefix) && nameStart.length >= 3) {
-                                                        prefix = nameStart.substring(0, 3);
-                                                    }
-
-                                                    setNewCategory({ ...newCategory, label, skuPrefix: prefix });
-                                                }}
-                                                className="bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-sm font-bold focus:border-accent outline-none col-span-2 shadow-inner"
-                                            />
-                                            {newCategory.label && (
-                                                <div className="col-span-2 px-4 py-2 bg-bg-tertiary/50 rounded-xl border border-dashed border-border flex items-center justify-between">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Genereret SKU Prefix:</span>
-                                                    <span className="font-mono text-xs font-black text-accent bg-bg-tertiary px-2 py-0.5 rounded border border-border">{newCategory.skuPrefix}</span>
+                                    <div className="animate-in fade-in slide-in-from-left-4 duration-300">
+                                        <div className="grid grid-cols-2 gap-3 mb-4">
+                                            {!isEditing && (
+                                                <input
+                                                    placeholder="Navn (f.eks. Cykler)"
+                                                    value={newCategory.label}
+                                                    onChange={e => {
+                                                        const label = e.target.value;
+                                                        const nameStart = label.replace(/[^a-zA-ZæøåÆØÅ]/g, '').substring(0, 3).toUpperCase();
+                                                        let prefix = nameStart.substring(0, 2);
+                                                        const existingPrefixes = activeCategories.map(c => (c.skuPrefix || c.sku_prefix || '').toUpperCase());
+                                                        if (existingPrefixes.includes(prefix) && nameStart.length >= 3) {
+                                                            prefix = nameStart.substring(0, 3);
+                                                        }
+                                                        setNewCategory({ ...newCategory, label, skuPrefix: prefix });
+                                                    }}
+                                                    className="bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-sm font-bold focus:border-accent outline-none col-span-2 shadow-inner transition-all"
+                                                />
+                                            )}
+                                            {currentData.label && !isEditing && (
+                                                <div className="col-span-2 px-4 py-2 bg-bg-tertiary/50 rounded-xl border border-dashed border-border flex items-center justify-between animate-in zoom-in-95">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">SKU Prefix:</span>
+                                                    <span className="font-mono text-xs font-black text-accent">{currentData.skuPrefix}</span>
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="grid grid-cols-1 gap-4">
+
+                                        <div className="space-y-6">
                                             {/* Icon Grid Picker */}
                                             <div>
                                                 <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Ikon</h5>
-                                                <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 bg-bg-tertiary p-3 rounded-2xl border border-border max-h-32 overflow-y-auto custom-scrollbar">
+                                                <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-4 gap-2 bg-bg-tertiary p-3 rounded-2xl border border-border max-h-48 overflow-y-auto custom-scrollbar shadow-inner">
                                                     {Object.entries(ICON_MAP).map(([name, Icon]) => {
                                                         const isUsed = usedIcons.includes(name);
+                                                        const isSelected = currentData.icon === name;
                                                         return (
                                                             <button
                                                                 key={name}
                                                                 type="button"
-                                                                onClick={() => setNewCategory({ ...newCategory, icon: name })}
-                                                                className={`p-2.5 rounded-xl transition-all flex items-center justify-center border-2 relative ${newCategory.icon === name ? 'bg-accent/10 border-accent text-accent' : 'border-transparent text-text-muted hover:bg-bg-secondary hover:text-text-primary'}`}
+                                                                onClick={() => isEditing ? setEditingCategory({ ...editingCategory, icon: name }) : setNewCategory({ ...newCategory, icon: name })}
+                                                                className={`p-2.5 rounded-xl transition-all flex items-center justify-center border-2 relative ${isSelected ? 'bg-accent/10 border-accent text-accent' : 'border-transparent text-text-muted hover:bg-bg-secondary hover:text-text-primary'}`}
                                                                 title={name + (isUsed ? ' (I brug)' : '')}
                                                             >
-                                                                <Icon className={`size-5 ${isUsed && newCategory.icon !== name ? 'opacity-40' : ''}`} />
+                                                                <Icon className={`size-5 ${isUsed && !isSelected ? 'opacity-30' : ''}`} />
                                                                 {isUsed && (
-                                                                    <span className="absolute top-1 right-1 size-1.5 bg-text-muted rounded-full" />
+                                                                    <span className="absolute top-1 right-1 size-1.5 bg-accent rounded-full animate-pulse" />
                                                                 )}
                                                             </button>
                                                         );
@@ -177,155 +199,191 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                             {/* Color Picker with Dots */}
                                             <div>
                                                 <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Farve</h5>
-                                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                                                <div className="grid grid-cols-1 gap-2">
                                                     {COLORS.map((col) => {
                                                         const isUsed = usedColors.includes(col.class);
+                                                        const isSelected = currentData.color === col.class;
                                                         return (
                                                             <button
                                                                 key={col.name}
                                                                 type="button"
-                                                                onClick={() => setNewCategory({ ...newCategory, color: col.class })}
-                                                                className={`flex items-center justify-between px-3 py-2 rounded-xl border-2 transition-all relative ${newCategory.color === col.class ? 'bg-bg-tertiary border-accent' : 'bg-bg-tertiary/50 border-border hover:border-text-muted'}`}
-                                                                title={col.name + (isUsed ? ' (I brug)' : '')}
+                                                                onClick={() => isEditing ? setEditingCategory({ ...editingCategory, color: col.class }) : setNewCategory({ ...newCategory, color: col.class })}
+                                                                className={`flex items-center justify-between px-3 py-2 rounded-xl border-2 transition-all relative ${isSelected ? 'bg-bg-tertiary border-accent shadow-sm' : 'bg-bg-tertiary/30 border-transparent hover:bg-bg-tertiary hover:border-border'}`}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <div className="size-2.5 rounded-full" style={{ backgroundColor: col.hex }} />
-                                                                    <span className={`text-xs font-bold ${col.class === newCategory.color ? 'text-text-primary' : 'text-text-secondary'}`}>
+                                                                    <div className="size-3 rounded-full shadow-sm" style={{ backgroundColor: col.hex }} />
+                                                                    <span className={`text-xs font-bold ${isSelected ? 'text-text-primary' : 'text-text-secondary'}`}>
                                                                         {col.name}
                                                                     </span>
                                                                 </div>
                                                                 {isUsed && (
-                                                                    <span className="text-[8px] font-black text-text-muted uppercase tracking-tighter">Brugt</span>
+                                                                    <span className="text-[8px] font-black text-accent uppercase tracking-tighter bg-accent/10 px-1.5 py-0.5 rounded">I brug</span>
                                                                 )}
                                                             </button>
                                                         );
                                                     })}
                                                 </div>
                                             </div>
-                                        </div>
-                                        <button
-                                            onClick={async () => {
-                                                if (!newCategory.label || !newCategory.skuPrefix) return;
-                                                const catId = newCategory.label; // Use label as ID for simplicity
 
-                                                try {
-                                                    // We need the PIN to save
-                                                    const pin = prompt('Indtast PIN for at gemme kategori:');
-                                                    if (!pin) return;
+                                            <button
+                                                onClick={async () => {
+                                                    const target = isEditing ? editingCategory : newCategory;
+                                                    if (!target.label || !target.skuPrefix) return;
 
-                                                    const res = await fetch('/admin/save-category', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({
-                                                            category: { id: catId, ...newCategory },
-                                                            pin
-                                                        })
-                                                    });
+                                                    try {
+                                                        const pin = prompt(`Indtast PIN for at ${isEditing ? 'opdatere' : 'oprette'} kategori:`);
+                                                        if (!pin) return;
 
-                                                    if (res.ok) {
-                                                        window.location.reload(); // Simple reload to refresh
-                                                    } else {
-                                                        alert('Fejl: Kunne ikke gemme kategori');
+                                                        const res = await fetch('/admin/save-category', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                category: { id: target.id || target.label, ...target },
+                                                                pin
+                                                            })
+                                                        });
+
+                                                        if (res.ok) {
+                                                            window.location.reload();
+                                                        } else {
+                                                            alert('Fejl: Kunne ikke gemme kategori');
+                                                        }
+                                                    } catch (e) {
+                                                        console.error(e);
+                                                        alert('Fejl');
                                                     }
-                                                } catch (e) {
-                                                    console.error(e);
-                                                    alert('Fejl');
-                                                }
-                                            }}
-                                            className="w-full bg-accent hover:bg-accent-hover text-accent-contrast py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all"
-                                        >
-                                            Opret Kategori
-                                        </button>
-                                    </>
+                                                }}
+                                                className={`w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 ${isEditing ? 'bg-success hover:bg-success/90 text-white' : 'bg-accent hover:bg-accent-hover text-accent-contrast'}`}
+                                            >
+                                                {isEditing ? 'Gem Ændringer' : 'Opret Kategori'}
+                                            </button>
+                                        </div>
+                                    </div>
                                 );
                             })()}
                         </div>
 
                         {/* Existing Categories List */}
-                        <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest sticky top-0 bg-bg-secondary pb-2 z-10">Eksisterende</h4>
-                            {activeCategories.map(cat => {
-                                const itemCount = items.filter(i => i.category === cat.id).length;
-                                const isDeleting = catDeleteConfirm === cat.id;
-                                const isProtected = (cat.id === 'Værktøj' || cat.id === 'Materialer'); // Example protection if needed, currently not enforcing
+                        <div className="lg:col-span-2 space-y-3 max-h-[700px] overflow-y-auto custom-scrollbar pr-4">
+                            <div className="flex items-center justify-between sticky top-0 bg-bg-secondary pb-4 z-10">
+                                <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest">Eksisterende Kategorier</h4>
+                                <span className="text-[10px] font-black text-text-muted uppercase bg-bg-tertiary px-2 py-1 rounded-full">{activeCategories.length} i alt</span>
+                            </div>
 
-                                const IconComp = getIconComponent(cat.icon);
+                            <div className="grid sm:grid-cols-2 gap-3">
+                                {activeCategories.map(cat => {
+                                    const itemCount = items.filter(i => i.category === (cat.id || cat.label)).length;
+                                    const isDeleting = catDeleteConfirm === cat.id;
+                                    const isEditing = editingCategory?.id === cat.id;
+                                    const IconComp = getIconComponent(cat.icon);
 
-                                return (
-                                    <div key={cat.id} className="bg-bg-primary border border-border rounded-xl p-3 flex items-center justify-between group hover:border-text-muted transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`p-2 rounded-lg bg-bg-tertiary ${cat.color}`}>
-                                                <IconComp className="size-4" />
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-text-primary text-sm flex items-center gap-2">
-                                                    {cat.label}
-                                                    <span className="font-mono text-[10px] text-text-muted bg-bg-tertiary px-1 rounded">{cat.skuPrefix}</span>
+                                    return (
+                                        <div
+                                            key={cat.id}
+                                            className={`bg-bg-primary border-2 rounded-2xl p-4 flex items-center justify-between group transition-all duration-300 ${isEditing ? 'border-accent shadow-xl bg-accent/5' : 'border-border hover:border-text-muted'}`}
+                                        >
+                                            <div className="flex items-center gap-4 flex-1">
+                                                <button
+                                                    onClick={() => {
+                                                        const iconName = typeof cat.icon === 'string' ? cat.icon :
+                                                            Object.entries(ICON_MAP).find(([name, comp]) => comp === cat.icon)?.[0] || 'Box';
+                                                        setEditingCategory({
+                                                            id: cat.id,
+                                                            label: cat.label,
+                                                            skuPrefix: cat.skuPrefix || cat.sku_prefix,
+                                                            icon: iconName,
+                                                            color: cat.color
+                                                        });
+                                                        // Scroll the form into view on mobile
+                                                        if (window.innerWidth < 1024) {
+                                                            document.querySelector('.bg-bg-secondary')?.scrollIntoView({ behavior: 'smooth' });
+                                                        }
+                                                    }}
+                                                    className={`relative p-3 rounded-xl bg-bg-tertiary transition-all group/icon shadow-inner ${cat.color} hover:ring-2 hover:ring-accent/30`}
+                                                    title="Rediger ikon/farve"
+                                                >
+                                                    <IconComp className="size-6" />
+                                                    <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover/icon:opacity-100 flex items-center justify-center transition-opacity">
+                                                        <Edit className="size-3 text-white" />
+                                                    </div>
+                                                </button>
+                                                <div className="min-w-0">
+                                                    <div className="font-black text-text-primary text-base uppercase italic tracking-tighter flex items-center gap-2">
+                                                        {cat.label}
+                                                        <span className="font-mono text-[10px] text-text-muted bg-bg-tertiary px-2 py-0.5 rounded border border-border/50">{cat.skuPrefix || cat.sku_prefix}</span>
+                                                    </div>
+                                                    <div className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mt-0.5">
+                                                        {itemCount} {itemCount === 1 ? 'vare' : 'varer'}
+                                                    </div>
                                                 </div>
-                                                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{itemCount} varer</div>
                                             </div>
-                                        </div>
 
-                                        {isDeleting ? (
-                                            <div className="flex flex-col items-end gap-2 animate-in slide-in-from-right-4">
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-[10px] font-bold text-error uppercase">Skriv PRÆCIS:</span>
-                                                    <span className="text-[10px] font-black text-text-primary select-all">{cat.id}</span>
-                                                </div>
-                                                <input
-                                                    className="w-32 bg-bg-tertiary border border-error rounded-lg px-2 py-1 text-xs font-bold focus:outline-none placeholder:text-text-muted/50"
-                                                    placeholder="Skriv navn her..."
-                                                    value={catDeleteInput}
-                                                    onChange={e => setCatDeleteInput(e.target.value)}
-                                                    autoFocus
-                                                />
-                                                <div className="flex gap-1">
+                                            {isDeleting ? (
+                                                <div className="flex items-center gap-2 animate-in slide-in-from-right-4">
+                                                    <input
+                                                        className="w-24 bg-bg-tertiary border border-error rounded-lg px-2 py-1.5 text-xs font-bold focus:outline-none"
+                                                        placeholder="Varenavn..."
+                                                        value={catDeleteInput}
+                                                        onChange={e => setCatDeleteInput(e.target.value)}
+                                                        autoFocus
+                                                    />
                                                     <button
                                                         onClick={async () => {
                                                             if (catDeleteInput !== cat.id) return;
                                                             const pin = prompt('Indtast PIN for at slette:');
                                                             if (!pin) return;
-
                                                             const res = await fetch('/admin/delete-category', {
                                                                 method: 'POST',
                                                                 headers: { 'Content-Type': 'application/json' },
                                                                 body: JSON.stringify({ id: cat.id, pin })
                                                             });
-
                                                             if (res.ok) window.location.reload();
-                                                            else alert('Kunne ikke slette (måske har den stadig varer?)');
+                                                            else alert('Fejl ved sletning');
                                                         }}
-                                                        disabled={catDeleteInput !== cat.id}
-                                                        className="px-2 py-1 bg-error text-white rounded text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-1.5 bg-error text-white rounded-lg opacity-50 hover:opacity-100 transition-opacity"
                                                     >
-                                                        Slet
+                                                        <Trash2 className="size-4" />
                                                     </button>
-                                                    <button onClick={() => { setCatDeleteConfirm(null); setCatDeleteInput(''); }} className="px-2 py-1 bg-bg-tertiary rounded text-xs">Annuller</button>
+                                                    <button onClick={() => { setCatDeleteConfirm(null); setCatDeleteInput(''); }} className="p-1.5 bg-bg-tertiary rounded-lg"><X className="size-4" /></button>
                                                 </div>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={() => {
-                                                    if (itemCount > 0) {
-                                                        alert('Du kan ikke slette en kategori, der indeholder varer. Slet eller flyt varerne først.');
-                                                        return;
-                                                    }
-                                                    setCatDeleteConfirm(cat.id);
-                                                    setCatDeleteInput('');
-                                                }}
-                                                disabled={itemCount > 0}
-                                                className={`p-2 rounded-lg border transition-all ${itemCount > 0
-                                                    ? 'opacity-20 cursor-not-allowed border-transparent text-text-muted bg-bg-tertiary'
-                                                    : 'border-border hover:border-error hover:text-error hover:bg-error/10 text-text-muted cursor-pointer'}`}
-                                                title={itemCount > 0 ? "Kan ikke slette kategori med varer" : "Slet kategori"}
-                                            >
-                                                <Trash2 className="size-4" />
-                                            </button>
-                                        )}
-                                    </div>
-                                );
-                            })
-                            }
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            const iconName = typeof cat.icon === 'string' ? cat.icon :
+                                                                Object.entries(ICON_MAP).find(([name, comp]) => comp === cat.icon)?.[0] || 'Box';
+                                                            setEditingCategory({
+                                                                id: cat.id,
+                                                                label: cat.label,
+                                                                skuPrefix: cat.skuPrefix || cat.sku_prefix,
+                                                                icon: iconName,
+                                                                color: cat.color
+                                                            });
+                                                        }}
+                                                        className="p-2.5 rounded-xl border border-border hover:border-accent hover:text-accent transition-all text-text-muted"
+                                                    >
+                                                        <Edit className="size-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (itemCount > 0) {
+                                                                alert('Flyt eller slet varerne først');
+                                                                return;
+                                                            }
+                                                            setCatDeleteConfirm(cat.id);
+                                                            setCatDeleteInput('');
+                                                        }}
+                                                        disabled={itemCount > 0}
+                                                        className={`p-2.5 rounded-xl border transition-all ${itemCount > 0 ? 'opacity-20 cursor-not-allowed' : 'border-border hover:border-error hover:text-error text-text-muted'}`}
+                                                    >
+                                                        <Trash2 className="size-4" />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
