@@ -117,18 +117,28 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                             <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest">Tilføj Ny</h4>
                             <div className="grid grid-cols-2 gap-3">
                                 <input
-                                    placeholder="Navn (f.eks. Cykler)"
+                                    placeholder="Kategorinavn (f.eks. Cykler)"
                                     value={newCategory.label}
-                                    onChange={e => setNewCategory({ ...newCategory, label: e.target.value })}
-                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none"
+                                    onChange={e => {
+                                        const label = e.target.value;
+                                        // Auto-generate prefix
+                                        let prefix = label.substring(0, 2).toUpperCase();
+                                        const existingPrefixes = activeCategories.map(c => c.skuPrefix);
+
+                                        if (existingPrefixes.includes(prefix)) {
+                                            prefix = label.substring(0, 3).toUpperCase();
+                                        }
+
+                                        setNewCategory({ ...newCategory, label, skuPrefix: prefix });
+                                    }}
+                                    className="bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-sm font-bold focus:border-accent outline-none col-span-2 shadow-inner"
                                 />
-                                <input
-                                    placeholder="Prefix (f.eks. CYK)"
-                                    maxLength={4}
-                                    value={newCategory.skuPrefix}
-                                    onChange={e => setNewCategory({ ...newCategory, skuPrefix: e.target.value.toUpperCase() })}
-                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none uppercase font-mono"
-                                />
+                                {newCategory.label && (
+                                    <div className="col-span-2 px-4 py-2 bg-bg-tertiary/50 rounded-xl border border-dashed border-border flex items-center justify-between">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Genereret SKU Prefix:</span>
+                                        <span className="font-mono text-xs font-black text-accent bg-bg-tertiary px-2 py-0.5 rounded border border-border">{newCategory.skuPrefix}</span>
+                                    </div>
+                                )}
                             </div>
                             <div className="grid grid-cols-1 gap-4">
                                 {/* Icon Grid Picker */}
