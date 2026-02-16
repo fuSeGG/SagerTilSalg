@@ -14,21 +14,23 @@ const Sidebar = ({
     searchQuery,
     setSearchQuery,
     viewMode,
-    setViewMode
+    setViewMode,
+    categories: propCategories // Renamed to avoid name collision with the local 'categories' array we create below
 }) => {
+    // Determine the base categories to work with
+    const activeCategories = (propCategories && propCategories.length > 0) ? propCategories : CATEGORIES;
+
     // Calculate stats
     const stats = React.useMemo(() => {
         const counts = { total: items.length, Favoritter: favoritesCount };
         // Initialize counts for all categories (dynamic or static)
-        const activeCategories = (props.categories && props.categories.length > 0) ? props.categories : CATEGORIES;
         activeCategories.forEach(cat => { counts[cat.id] = 0; });
 
         items.forEach(item => { if (counts[item.category] !== undefined) counts[item.category]++; });
         return counts;
-    }, [items, favoritesCount, props.categories]);
+    }, [items, favoritesCount, activeCategories]);
 
-    // Use dynamic categories or fallback
-    const activeCategories = (props.categories && props.categories.length > 0) ? props.categories : CATEGORIES;
+    // activeCategories is now defined at the top of the component scope
 
     const categories = [
         { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-text-primary' },
