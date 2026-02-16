@@ -33,8 +33,8 @@ const Sidebar = ({
     // activeCategories is now defined at the top of the component scope
 
     const categories = [
-        { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-text-primary' },
         { label: 'Favoritter', key: 'Favoritter', count: stats['Favoritter'], icon: Heart, color: 'text-orange-500' },
+        { label: 'Alle Varer', key: 'Alle', count: stats.total, icon: Package, color: 'text-text-primary' },
         ...activeCategories.map(cat => ({
             label: cat.label,
             key: cat.id,
@@ -110,31 +110,36 @@ const Sidebar = ({
             <div className="flex-1 overflow-y-auto min-h-0 p-4 custom-scrollbar">
                 <div className="space-y-1">
                     <h3 className="text-text-muted text-xs font-black uppercase tracking-[0.2em] px-2 mb-3">Kategorier</h3>
-                    {categories.map((cat) => (
-                        <button
-                            key={cat.key}
-                            onClick={() => {
-                                onSelectCategory(cat.key);
-                                if (window.innerWidth < 768) onClose();
-                            }}
-                            className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all group ${selectedCategory === cat.key
-                                ? 'bg-bg-secondary border border-border shadow-inner'
-                                : 'hover:bg-bg-secondary/50 border border-transparent'
-                                }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <cat.icon className={`size-4 ${selectedCategory === cat.key ? cat.color : 'text-text-muted group-hover:text-text-secondary'} ${cat.key === 'Favoritter' && selectedCategory === 'Favoritter' ? 'fill-orange-500' : ''}`} />
-                                <span className={`text-[11px] font-black uppercase tracking-wide ${selectedCategory === cat.key ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'}`}>
-                                    {cat.label}
+                    {categories.map((cat, index) => (
+                        <React.Fragment key={cat.key}>
+                            <button
+                                onClick={() => {
+                                    onSelectCategory(cat.key);
+                                    if (window.innerWidth < 768) onClose();
+                                }}
+                                className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all group ${selectedCategory === cat.key
+                                    ? 'bg-bg-secondary border border-border shadow-inner'
+                                    : 'hover:bg-bg-secondary/50 border border-transparent'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <cat.icon className={`size-4 ${selectedCategory === cat.key ? cat.color : 'text-text-muted group-hover:text-text-secondary'} ${cat.key === 'Favoritter' && selectedCategory === 'Favoritter' ? 'fill-orange-500' : ''}`} />
+                                    <span className={`text-[11px] font-black uppercase tracking-wide ${selectedCategory === cat.key ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'}`}>
+                                        {cat.label}
+                                    </span>
+                                </div>
+                                <span className={`text-xs font-black px-1.5 py-0.5 rounded ${selectedCategory === cat.key
+                                    ? 'bg-accent text-accent-contrast'
+                                    : 'bg-bg-secondary text-text-muted'
+                                    }`}>
+                                    {cat.count}
                                 </span>
-                            </div>
-                            <span className={`text-xs font-black px-1.5 py-0.5 rounded ${selectedCategory === cat.key
-                                ? 'bg-accent text-accent-contrast'
-                                : 'bg-bg-secondary text-text-muted'
-                                }`}>
-                                {cat.count}
-                            </span>
-                        </button>
+                            </button>
+                            {/* Add separator after the first two special categories (Favoritter and Alle) */}
+                            {index === 1 && (
+                                <div className="mx-2 my-3 border-b border-bg-secondary/50" />
+                            )}
+                        </React.Fragment>
                     ))}
                 </div>
 

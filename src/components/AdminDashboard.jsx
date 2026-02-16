@@ -115,106 +115,130 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                         {/* New Category Form */}
                         <div className="space-y-4">
                             <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest">Tilføj Ny</h4>
-                            <div className="grid grid-cols-2 gap-3">
-                                <input
-                                    placeholder="Kategorinavn (f.eks. Cykler)"
-                                    value={newCategory.label}
-                                    onChange={e => {
-                                        const label = e.target.value;
-                                        // Auto-generate prefix
-                                        const nameStart = label.replace(/[^a-zA-ZæøåÆØÅ]/g, '').substring(0, 3).toUpperCase();
-                                        let prefix = nameStart.substring(0, 2);
+                            {(() => {
+                                const usedIcons = activeCategories.map(c => c.icon);
+                                const usedColors = activeCategories.map(c => c.color);
 
-                                        // Check against existing prefixes (handling both camelCase and snake_case for safety)
-                                        const existingPrefixes = activeCategories.map(c => (c.skuPrefix || c.sku_prefix || '').toUpperCase());
+                                return (
+                                    <>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <input
+                                                placeholder="Kategorinavn (f.eks. Cykler)"
+                                                value={newCategory.label}
+                                                onChange={e => {
+                                                    const label = e.target.value;
+                                                    // Auto-generate prefix
+                                                    const nameStart = label.replace(/[^a-zA-ZæøåÆØÅ]/g, '').substring(0, 3).toUpperCase();
+                                                    let prefix = nameStart.substring(0, 2);
 
-                                        if (existingPrefixes.includes(prefix) && nameStart.length >= 3) {
-                                            prefix = nameStart.substring(0, 3);
-                                        }
+                                                    // Check against existing prefixes (handling both camelCase and snake_case for safety)
+                                                    const existingPrefixes = activeCategories.map(c => (c.skuPrefix || c.sku_prefix || '').toUpperCase());
 
-                                        setNewCategory({ ...newCategory, label, skuPrefix: prefix });
-                                    }}
-                                    className="bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-sm font-bold focus:border-accent outline-none col-span-2 shadow-inner"
-                                />
-                                {newCategory.label && (
-                                    <div className="col-span-2 px-4 py-2 bg-bg-tertiary/50 rounded-xl border border-dashed border-border flex items-center justify-between">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Genereret SKU Prefix:</span>
-                                        <span className="font-mono text-xs font-black text-accent bg-bg-tertiary px-2 py-0.5 rounded border border-border">{newCategory.skuPrefix}</span>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="grid grid-cols-1 gap-4">
-                                {/* Icon Grid Picker */}
-                                <div>
-                                    <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Ikon</h5>
-                                    <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 bg-bg-tertiary p-3 rounded-2xl border border-border max-h-32 overflow-y-auto custom-scrollbar">
-                                        {Object.entries(ICON_MAP).map(([name, Icon]) => (
-                                            <button
-                                                key={name}
-                                                type="button"
-                                                onClick={() => setNewCategory({ ...newCategory, icon: name })}
-                                                className={`p-2.5 rounded-xl transition-all flex items-center justify-center border-2 ${newCategory.icon === name ? 'bg-accent/10 border-accent text-accent' : 'border-transparent text-text-muted hover:bg-bg-secondary hover:text-text-primary'}`}
-                                                title={name}
-                                            >
-                                                <Icon className="size-5" />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                                                    if (existingPrefixes.includes(prefix) && nameStart.length >= 3) {
+                                                        prefix = nameStart.substring(0, 3);
+                                                    }
 
-                                {/* Color Picker with Dots */}
-                                <div>
-                                    <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Farve</h5>
-                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                                        {COLORS.map((col) => (
-                                            <button
-                                                key={col.name}
-                                                type="button"
-                                                onClick={() => setNewCategory({ ...newCategory, color: col.class })}
-                                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all ${newCategory.color === col.class ? 'bg-bg-tertiary border-accent' : 'bg-bg-tertiary/50 border-border hover:border-text-muted'}`}
-                                            >
-                                                <div className="size-2.5 rounded-full" style={{ backgroundColor: col.hex }} />
-                                                <span className={`text-xs font-bold ${col.class === newCategory.color ? 'text-text-primary' : 'text-text-secondary'}`}>
-                                                    {col.name}
-                                                </span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                onClick={async () => {
-                                    if (!newCategory.label || !newCategory.skuPrefix) return;
-                                    const catId = newCategory.label; // Use label as ID for simplicity
+                                                    setNewCategory({ ...newCategory, label, skuPrefix: prefix });
+                                                }}
+                                                className="bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-sm font-bold focus:border-accent outline-none col-span-2 shadow-inner"
+                                            />
+                                            {newCategory.label && (
+                                                <div className="col-span-2 px-4 py-2 bg-bg-tertiary/50 rounded-xl border border-dashed border-border flex items-center justify-between">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Genereret SKU Prefix:</span>
+                                                    <span className="font-mono text-xs font-black text-accent bg-bg-tertiary px-2 py-0.5 rounded border border-border">{newCategory.skuPrefix}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {/* Icon Grid Picker */}
+                                            <div>
+                                                <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Ikon</h5>
+                                                <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 bg-bg-tertiary p-3 rounded-2xl border border-border max-h-32 overflow-y-auto custom-scrollbar">
+                                                    {Object.entries(ICON_MAP).map(([name, Icon]) => {
+                                                        const isUsed = usedIcons.includes(name);
+                                                        return (
+                                                            <button
+                                                                key={name}
+                                                                type="button"
+                                                                onClick={() => setNewCategory({ ...newCategory, icon: name })}
+                                                                className={`p-2.5 rounded-xl transition-all flex items-center justify-center border-2 relative ${newCategory.icon === name ? 'bg-accent/10 border-accent text-accent' : 'border-transparent text-text-muted hover:bg-bg-secondary hover:text-text-primary'}`}
+                                                                title={name + (isUsed ? ' (I brug)' : '')}
+                                                            >
+                                                                <Icon className={`size-5 ${isUsed && newCategory.icon !== name ? 'opacity-40' : ''}`} />
+                                                                {isUsed && (
+                                                                    <span className="absolute top-1 right-1 size-1.5 bg-text-muted rounded-full" />
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
 
-                                    try {
-                                        // We need the PIN to save
-                                        const pin = prompt('Indtast PIN for at gemme kategori:');
-                                        if (!pin) return;
+                                            {/* Color Picker with Dots */}
+                                            <div>
+                                                <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Farve</h5>
+                                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                                                    {COLORS.map((col) => {
+                                                        const isUsed = usedColors.includes(col.class);
+                                                        return (
+                                                            <button
+                                                                key={col.name}
+                                                                type="button"
+                                                                onClick={() => setNewCategory({ ...newCategory, color: col.class })}
+                                                                className={`flex items-center justify-between px-3 py-2 rounded-xl border-2 transition-all relative ${newCategory.color === col.class ? 'bg-bg-tertiary border-accent' : 'bg-bg-tertiary/50 border-border hover:border-text-muted'}`}
+                                                                title={col.name + (isUsed ? ' (I brug)' : '')}
+                                                            >
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="size-2.5 rounded-full" style={{ backgroundColor: col.hex }} />
+                                                                    <span className={`text-xs font-bold ${col.class === newCategory.color ? 'text-text-primary' : 'text-text-secondary'}`}>
+                                                                        {col.name}
+                                                                    </span>
+                                                                </div>
+                                                                {isUsed && (
+                                                                    <span className="text-[8px] font-black text-text-muted uppercase tracking-tighter">Brugt</span>
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={async () => {
+                                                if (!newCategory.label || !newCategory.skuPrefix) return;
+                                                const catId = newCategory.label; // Use label as ID for simplicity
 
-                                        const res = await fetch('/admin/save-category', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                category: { id: catId, ...newCategory },
-                                                pin
-                                            })
-                                        });
+                                                try {
+                                                    // We need the PIN to save
+                                                    const pin = prompt('Indtast PIN for at gemme kategori:');
+                                                    if (!pin) return;
 
-                                        if (res.ok) {
-                                            window.location.reload(); // Simple reload to refresh
-                                        } else {
-                                            alert('Fejl: Kunne ikke gemme kategori');
-                                        }
-                                    } catch (e) {
-                                        console.error(e);
-                                        alert('Fejl');
-                                    }
-                                }}
-                                className="w-full bg-accent hover:bg-accent-hover text-accent-contrast py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all"
-                            >
-                                Opret Kategori
-                            </button>
+                                                    const res = await fetch('/admin/save-category', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({
+                                                            category: { id: catId, ...newCategory },
+                                                            pin
+                                                        })
+                                                    });
+
+                                                    if (res.ok) {
+                                                        window.location.reload(); // Simple reload to refresh
+                                                    } else {
+                                                        alert('Fejl: Kunne ikke gemme kategori');
+                                                    }
+                                                } catch (e) {
+                                                    console.error(e);
+                                                    alert('Fejl');
+                                                }
+                                            }}
+                                            className="w-full bg-accent hover:bg-accent-hover text-accent-contrast py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all"
+                                        >
+                                            Opret Kategori
+                                        </button>
+                                    </>
+                                );
+                            })()}
                         </div>
 
                         {/* Existing Categories List */}
@@ -300,7 +324,8 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                         )}
                                     </div>
                                 );
-                            })}
+                            })
+                            }
                         </div>
                     </div>
                 </div>
