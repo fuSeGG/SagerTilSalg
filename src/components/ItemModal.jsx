@@ -1,7 +1,19 @@
-import { X, Phone, MessageSquare, Heart, Save } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Phone, MessageSquare, Heart, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import ContactButton from './ContactButton';
 
 const ItemModal = ({ item, isFavorite, onToggleFavorite, onClose }) => {
+    const [activeImage, setActiveImage] = useState(null);
+
+    // Prepare images array (backward compat)
+    const allImages = item?.images && item.images.length > 0
+        ? item.images
+        : (item?.image ? [item.image] : []);
+
+    useEffect(() => {
+        if (allImages.length > 0) setActiveImage(allImages[0]);
+    }, [item]);
+
     if (!item) return null;
 
     return (
@@ -18,14 +30,31 @@ const ItemModal = ({ item, isFavorite, onToggleFavorite, onClose }) => {
                 </button>
 
                 {/* Left: Image Section */}
-                <div className="w-full md:w-3/5 bg-black flex items-center justify-center overflow-hidden h-72 md:h-auto relative">
+                <div className="w-full md:w-3/5 bg-black flex flex-col items-center justify-center overflow-hidden h-72 md:h-auto relative group">
                     <img
-                        src={item.image}
+                        src={activeImage || allImages[0]}
                         alt={item.name}
-                        className="w-full h-full object-cover opacity-90"
+                        className="w-full h-full object-cover opacity-90 transition-opacity duration-300"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40" />
-                    <div className="absolute bottom-6 left-6">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40 pointer-events-none" />
+
+                    {/* Thumbnails (only if > 1) */}
+                    {allImages.length > 1 && (
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/40 backdrop-blur-md rounded-2xl overflow-x-auto max-w-[90%] custom-scrollbar z-10">
+                            {allImages.map((img, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={(e) => { e.stopPropagation(); setActiveImage(img); }}
+                                    className={`relative size-12 md:size-16 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${activeImage === img ? 'border-accent scale-105 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
+                                        }`}
+                                >
+                                    <img src={img} className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="absolute top-6 left-6 pointer-events-none">
                         <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl border border-border font-black text-text-secondary text-xs tracking-[0.3em] uppercase">
                             Ref: {item.sku}
                         </div>

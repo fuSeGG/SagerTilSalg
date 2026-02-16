@@ -22,21 +22,28 @@ export async function onRequestPost({ request, env }) {
         // 2. Initialize Supabase with Service Key (Admin)
         const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-        // 3. Fetch item to find associated image (for cleanup)
+        // 3. Fetch item to find associated images (for cleanup)
         const { data: item } = await supabase
             .from('items')
             .select('data')
             .eq('sku', sku)
             .single();
 
-        if (item?.data?.image) {
-            const filePath = extractStoragePath(item.data.image);
-            if (filePath) {
+        if (item?.data) {
+            // Normalize all images (handle legacy 'image' and new 'images' array)
+            const images = item.data.images || (item.data.image ? [item.data.image] : []);
+
+            // Extract paths
+            const pathsToDelete = images.map(extractStoragePath).filter(Boolean);
+
+            if (pathsToDelete.length > 0) {
+                console.log(`Deleting ${pathsToDelete.length} images for SKU ${sku}`);
                 const { error: storageError } = await supabase.storage
                     .from('inventory')
-                    .remove([filePath]);
+                    .remove(pathsToDelete);
+
                 if (storageError) {
-                    console.error(`Failed to delete image "${filePath}":`, storageError.message);
+                    console.error('Failed to delete images:', storageError);
                 }
             }
         }

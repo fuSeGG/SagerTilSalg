@@ -22,17 +22,31 @@ export async function onRequestPost({ request, env }) {
         // 2. Initialize Supabase with Service Key (Admin)
         const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-        // 3. If updating, clean up old image when a new one replaces it
+        // 3. Image Cleanup Logic
+        // Fetch existing item to see what images it had
         const { data: existing } = await supabase
             .from('items')
             .select('data')
             .eq('sku', item.sku)
             .single();
 
-        if (existing?.data?.image && item.image && existing.data.image !== item.image) {
-            const oldPath = extractStoragePath(existing.data.image);
-            if (oldPath) {
-                await supabase.storage.from('inventory').remove([oldPath]);
+        if (existing?.data) {
+            // Normalize old images to array (handle legacy 'image' string)
+            const oldImages = existing.data.images || (existing.data.image ? [existing.data.image] : []);
+
+            // Normalize new images to array
+            const newImages = item.images || (item.image ? [item.image] : []);
+
+            // Identify orphaned images (in old but not in new)
+            const pathsToDelete = oldImages
+                .filter(img => !newImages.includes(img))
+                .map(extractStoragePath)
+                .filter(Boolean);
+
+            if (pathsToDelete.length > 0) {
+                console.log('Deleting orphaned images:', pathsToDelete);
+                // Batch delete
+                await supabase.storage.from('inventory').remove(pathsToDelete);
             }
         }
 
@@ -53,6 +67,7 @@ export async function onRequestPost({ request, env }) {
         });
 
     } catch (err) {
+        console.error('Save item error:', err);
         return new Response(JSON.stringify({ error: err.message }), { status: 500 });
     }
 }

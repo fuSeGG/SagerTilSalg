@@ -320,8 +320,13 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                 <tr key={item.sku} className="group hover:bg-bg-tertiary/30 transition-colors">
                                     <td className="px-8 py-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-bg-primary border border-border flex-shrink-0">
+                                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-bg-primary border border-border flex-shrink-0 relative">
                                                 <img src={item.image} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all" />
+                                                {(item.images?.length > 1) && (
+                                                    <div className="absolute bottom-0 right-0 bg-black/70 text-white text-[9px] font-bold px-1 rounded-tl-md backdrop-blur-sm">
+                                                        +{item.images.length - 1}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="text-text-primary font-black text-lg truncate max-w-[300px] uppercase tracking-tighter italic leading-none mb-1">{item.name}</div>

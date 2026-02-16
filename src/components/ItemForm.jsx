@@ -12,10 +12,17 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
         price: '',
         quantity: 1,
         description: '',
-        image: null,
+        images: [], // New array for multiple images
         available: true,
         dateAdded: new Date().toISOString()
     });
+
+    // Backward compatibility: If initialData has 'image' but not 'images', wrap it
+    useEffect(() => {
+        if (initialData && initialData.image && (!initialData.images || initialData.images.length === 0)) {
+            setFormData(prev => ({ ...prev, images: [initialData.image] }));
+        }
+    }, [initialData]);
 
     React.useEffect(() => {
         if (!initialData && getNextSku && categories && categories.length > 0) {
@@ -24,8 +31,32 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
             });
         }
     }, [initialData, getNextSku, categories]);
-    const [preview, setPreview] = useState(initialData?.image || null);
-    const [imageFile, setImageFile] = useState(null);
+    // State for image handling
+    // previews: Array of objects { url: string, isLocal: boolean, blob?: Blob }
+    const [previews, setPreviews] = useState([]);
+
+    // Initialize previews from formData
+    useEffect(() => {
+        if (formData.images && formData.images.length > 0) {
+            // Only initialize if we haven't already (to avoid overwriting local previews on re-renders)
+            setPreviews(prev => {
+                if (prev.length === 0) {
+                    return formData.images.map(url => ({ url, isLocal: false }));
+                }
+                return prev;
+            });
+        }
+    }, []); // Run once on mount (or when initialData loads)
+
+    // Sync external changes if needed (e.g. from initialData update)
+    useEffect(() => {
+        if (initialData?.images) {
+            setPreviews(initialData.images.map(url => ({ url, isLocal: false })));
+        } else if (initialData?.image) {
+            setPreviews([{ url: initialData.image, isLocal: false }]);
+        }
+    }, [initialData]);
+
     const [isProcessing, setIsProcessing] = useState(false);
     const [imageWarning, setImageWarning] = useState(null);
     const [formErrors, setFormErrors] = useState({});
@@ -47,33 +78,54 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
     };
 
     const handleImageChange = async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            clearError('image');
-
-            const fileSizeMB = file.size / (1024 * 1024);
-            if (fileSizeMB > 10) {
-                setImageWarning(`Advarsel: Billedet er meget stort (${fileSizeMB.toFixed(1)}MB). Dette kan fylde databasen hurtigt. Overvej at formindske det.`);
-            } else {
-                setImageWarning(null);
-            }
-
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            clearError('images');
             setIsProcessing(true);
-            try {
-                const compressedBlob = await processImage(file);
-                // Store the compressed blob for uploading later
-                setImageFile(compressedBlob);
+            setImageWarning(null);
 
-                // Create a local URL for the preview
-                const previewUrl = URL.createObjectURL(compressedBlob);
-                setPreview(previewUrl);
+            try {
+                const newPreviews = [];
+
+                // Process in parallel
+                await Promise.all(files.map(async (file) => {
+                    // Size check warning (only first big one)
+                    const fileSizeMB = file.size / (1024 * 1024);
+                    if (fileSizeMB > 10) {
+                        setImageWarning(prev => prev || `Advarsel: Et billede er meget stort (${fileSizeMB.toFixed(1)}MB).`);
+                    }
+
+                    const compressedBlob = await processImage(file);
+                    const previewUrl = URL.createObjectURL(compressedBlob);
+
+                    newPreviews.push({
+                        url: previewUrl,
+                        isLocal: true,
+                        blob: compressedBlob
+                    });
+                }));
+
+                setPreviews(prev => [...prev, ...newPreviews]);
+
             } catch (err) {
                 console.error('Image processing error:', err);
-                setFormErrors(prev => ({ ...prev, image: 'Kunne ikke behandle billedet. Prøv et andet format (JPG, PNG).' }));
+                setFormErrors(prev => ({ ...prev, images: 'Kunne ikke behandle et eller flere billeder.' }));
             } finally {
                 setIsProcessing(false);
+                // Reset input so same files can be selected again if needed
+                if (fileInputRef.current) fileInputRef.current.value = '';
             }
         }
+    };
+
+    const removeImage = (indexToRemove) => {
+        setPreviews(prev => {
+            const newPreviews = prev.filter((_, idx) => idx !== indexToRemove);
+            // If we removed a local preview, revoke its URL to free memory
+            const removed = prev[indexToRemove];
+            if (removed.isLocal) URL.revokeObjectURL(removed.url);
+            return newPreviews;
+        });
     };
 
     const uploadImage = async (blob, sku) => {
@@ -100,8 +152,8 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
 
     const validate = () => {
         const errors = {};
-        if (!preview && !initialData?.image) {
-            errors.image = 'Du skal uploade et billede af varen.';
+        if (previews.length === 0) {
+            errors.images = 'Du skal uploade mindst ét billede af varen.';
         }
         if (!formData.name || formData.name.trim() === '') {
             errors.name = 'Varen skal have et navn.';
@@ -129,15 +181,23 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
 
         setIsProcessing(true);
         try {
-            let imageUrl = formData.image;
+            const finalImageUrls = [];
 
-            if (imageFile) {
-                imageUrl = await uploadImage(imageFile, formData.sku);
+            for (const item of previews) {
+                if (item.isLocal && item.blob) {
+                    // Upload new image
+                    const url = await uploadImage(item.blob, formData.sku);
+                    finalImageUrls.push(url);
+                } else {
+                    // Keep existing URL
+                    finalImageUrls.push(item.url);
+                }
             }
 
             await onSave({
                 ...formData,
-                image: imageUrl,
+                images: finalImageUrls,
+                image: finalImageUrls[0], // Backward compatibility
                 price: Number(formData.price),
                 quantity: formData.quantity ? Number(formData.quantity) : 1
             });
@@ -183,52 +243,58 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6 pb-10">
-                {/* Image Upload Area */}
-                <div className="relative group">
-                    <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className={`min-h-[200px] max-h-64 w-full rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative ${formErrors.image
-                            ? 'border-error bg-error/5'
-                            : preview
-                                ? 'border-success/50 bg-bg-secondary shadow-xl'
-                                : 'border-border bg-bg-tertiary/50 hover:border-text-muted'
-                            }`}
-                    >
-                        {preview ? (
-                            <>
-                                <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-                                <div className="absolute inset-0 bg-bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
-                                    <RefreshCcw className="text-text-primary size-8" />
-                                    <span className="text-text-primary font-bold">Skift billede</span>
+                {/* Image Upload Area (Grid) */}
+                <div className="space-y-3">
+                    <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider">Billeder ({previews.length})</label>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {/* Existing/New Previews */}
+                        {previews.map((item, idx) => (
+                            <div key={idx} className="aspect-square relative group rounded-2xl overflow-hidden border border-border bg-bg-secondary shadow-sm">
+                                <img src={item.url} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+
+                                {/* Overlay with actions */}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(idx)}
+                                        className="p-2 bg-error text-white rounded-full hover:scale-110 transition-transform shadow-lg"
+                                        title="Fjern billede"
+                                    >
+                                        <X className="size-5" />
+                                    </button>
                                 </div>
-                            </>
-                        ) : (
-                            <div className="text-center p-8">
-                                <div className={`p-4 rounded-2xl w-fit mx-auto mb-4 ${formErrors.image ? 'bg-error/10' : 'bg-bg-tertiary'}`}>
-                                    <Camera className={`size-8 ${formErrors.image ? 'text-error' : 'text-text-muted'}`} />
-                                </div>
-                                {isProcessing ? (
-                                    <p className="text-success font-bold animate-pulse">Behandler billede...</p>
-                                ) : (
-                                    <>
-                                        <h3 className={`font-bold mb-2 ${formErrors.image ? 'text-error' : 'text-white'}`}>
-                                            {formErrors.image ? 'Billede mangler!' : 'Tag eller vælg billede'}
-                                        </h3>
-                                        <p className="text-text-muted text-sm">Klik her for at åbne kamera eller galleri</p>
-                                    </>
+                                {/* Main image badge */}
+                                {idx === 0 && (
+                                    <div className="absolute top-2 left-2 bg-accent text-accent-contrast text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-lg">
+                                        Primær
+                                    </div>
                                 )}
                             </div>
-                        )}
+                        ))}
+
+                        {/* Add Button */}
+                        <div
+                            onClick={() => fileInputRef.current?.click()}
+                            className={`aspect-square rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer hover:bg-bg-tertiary/50 group ${formErrors.images ? 'border-error bg-error/5' : 'border-border'
+                                }`}
+                        >
+                            <div className="p-3 bg-bg-tertiary rounded-full mb-2 group-hover:scale-110 transition-transform">
+                                <Camera className={`size-6 ${formErrors.images ? 'text-error' : 'text-text-muted'}`} />
+                            </div>
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wide group-hover:text-text-primary">Tilføj foto</span>
+                        </div>
                     </div>
+
                     <input
                         type="file"
                         accept="image/*"
+                        multiple // Allow multiple files
                         className="hidden"
                         ref={fileInputRef}
                         onChange={handleImageChange}
-                        capture="environment"
                     />
-                    <FieldError field="image" />
+                    <FieldError field="images" />
                 </div>
 
                 {imageWarning && (

@@ -32,6 +32,11 @@ export const ItemCard = ({ item, isFavorite, onToggleFavorite, onClick, isSelect
                         <Heart className={`size-4 ${isFavorite ? 'fill-current' : ''}`} />
                     </button>
                 </div>
+                {(item.images?.length > 1) && (
+                    <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+                        +{item.images.length - 1} Billeder
+                    </div>
+                )}
             </div>
 
             <div className="p-3" onClick={onClick}>
@@ -74,6 +79,11 @@ export const ItemRow = ({ item, isFavorite, onToggleFavorite, onClick, isSelecte
                     alt={item.name}
                     className="w-full h-full object-cover rounded-lg shadow-sm border border-border"
                 />
+                {(item.images?.length > 1) && (
+                    <div className="absolute bottom-0 right-0 bg-black/60 text-white text-[9px] font-bold px-1 rounded-tl-md backdrop-blur-sm">
+                        +{item.images.length - 1}
+                    </div>
+                )}
             </div>
 
             <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-x-4 py-0.5">
