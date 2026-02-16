@@ -65,7 +65,7 @@ export async function onRequestPost({ request, env }) {
         }
 
         // 3. Verify PIN
-        const validPin = env.ADMIN_PIN || '1234';
+        const validPin = env.ADMIN_PIN || '3757';
         if (!env.ADMIN_PIN) {
             console.warn('ADMIN_PIN not set in environment variables. Using default.');
         }

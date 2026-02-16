@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive, Settings } from 'lucide-react';
+import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive, Settings, ChevronDown } from 'lucide-react';
 import { getStorageUsage } from '../utils/storageUsage';
-import { CATEGORIES } from '../utils/constants';
+import { CATEGORIES, COLORS, ICON_MAP, getIconComponent } from '../utils/constants';
 
 const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -130,31 +130,44 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                     className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none uppercase font-mono"
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                {/* Icon Picker (Simplified) */}
-                                <select
-                                    value={newCategory.icon}
-                                    onChange={e => setNewCategory({ ...newCategory, icon: e.target.value })}
-                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none"
-                                >
-                                    {['Box', 'Wrench', 'Armchair', 'Car', 'Settings', 'Package', 'User', 'Star', 'Key', 'Shield', 'Tag', 'Hash', 'FileText', 'Image', 'LayoutGrid', 'List'].map(icon => (
-                                        <option key={icon} value={icon}>{icon}</option>
-                                    ))}
-                                </select>
-                                {/* Color Picker (Simplified) */}
-                                <select
-                                    value={newCategory.color}
-                                    onChange={e => setNewCategory({ ...newCategory, color: e.target.value })}
-                                    className="bg-bg-tertiary border border-border rounded-xl px-3 py-2 text-sm font-bold focus:border-accent outline-none"
-                                >
-                                    <option value="text-accent">Dyb Te</option>
-                                    <option value="text-text-secondary">Grå</option>
-                                    <option value="text-orange-500">Orange</option>
-                                    <option value="text-blue-400">Blå</option>
-                                    <option value="text-purple-500">Lilla</option>
-                                    <option value="text-green-500">Grøn</option>
-                                    <option value="text-red-500">Rød</option>
-                                </select>
+                            <div className="grid grid-cols-1 gap-4">
+                                {/* Icon Grid Picker */}
+                                <div>
+                                    <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Ikon</h5>
+                                    <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 bg-bg-tertiary p-3 rounded-2xl border border-border max-h-32 overflow-y-auto custom-scrollbar">
+                                        {Object.entries(ICON_MAP).map(([name, Icon]) => (
+                                            <button
+                                                key={name}
+                                                type="button"
+                                                onClick={() => setNewCategory({ ...newCategory, icon: name })}
+                                                className={`p-2.5 rounded-xl transition-all flex items-center justify-center border-2 ${newCategory.icon === name ? 'bg-accent/10 border-accent text-accent' : 'border-transparent text-text-muted hover:bg-bg-secondary hover:text-text-primary'}`}
+                                                title={name}
+                                            >
+                                                <Icon className="size-5" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Color Picker with Dots */}
+                                <div>
+                                    <h5 className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Vælg Farve</h5>
+                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                                        {COLORS.map((col) => (
+                                            <button
+                                                key={col.name}
+                                                type="button"
+                                                onClick={() => setNewCategory({ ...newCategory, color: col.class })}
+                                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all ${newCategory.color === col.class ? 'bg-bg-tertiary border-accent' : 'bg-bg-tertiary/50 border-border hover:border-text-muted'}`}
+                                            >
+                                                <div className="size-2.5 rounded-full" style={{ backgroundColor: col.hex }} />
+                                                <span className={`text-xs font-bold ${col.class === newCategory.color ? 'text-text-primary' : 'text-text-secondary'}`}>
+                                                    {col.name}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                             <button
                                 onClick={async () => {
@@ -199,12 +212,13 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                 const isDeleting = catDeleteConfirm === cat.id;
                                 const isProtected = (cat.id === 'Værktøj' || cat.id === 'Materialer'); // Example protection if needed, currently not enforcing
 
+                                const IconComp = getIconComponent(cat.icon);
+
                                 return (
                                     <div key={cat.id} className="bg-bg-primary border border-border rounded-xl p-3 flex items-center justify-between group hover:border-text-muted transition-colors">
                                         <div className="flex items-center gap-3">
                                             <div className={`p-2 rounded-lg bg-bg-tertiary ${cat.color}`}>
-                                                {/* We don't have dynamic icon rendering here easily without passing getIconComponent, relying on text fallback or simple icon */}
-                                                <Package className="size-4" />
+                                                <IconComp className="size-4" />
                                             </div>
                                             <div>
                                                 <div className="font-bold text-text-primary text-sm flex items-center gap-2">

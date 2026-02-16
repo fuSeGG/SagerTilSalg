@@ -5,7 +5,7 @@ export async function onRequestPost({ request, env }) {
         const { id, pin } = await request.json();
 
         // 1. Verify PIN
-        const validPin = env.ADMIN_PIN || '1234';
+        const validPin = env.ADMIN_PIN || '3757';
         if (pin !== validPin) {
             return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
         }
