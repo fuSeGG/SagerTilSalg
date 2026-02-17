@@ -275,7 +275,9 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                                     const itemCount = items.filter(i => i.category === (cat.id || cat.label)).length;
                                     const isDeleting = catDeleteConfirm === cat.id;
                                     const isEditing = editingCategory?.id === cat.id;
-                                    const IconComp = getIconComponent(cat.icon);
+                                    const IconComp = typeof cat.icon === 'string'
+                                        ? getIconComponent(cat.icon)
+                                        : cat.icon;
 
                                     return (
                                         <div

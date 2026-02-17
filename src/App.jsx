@@ -184,16 +184,15 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Global Controls: Search & View Mode */}
               <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="relative group w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-text-muted group-focus-within:text-accent transition-colors" />
+                <div className="relative group w-full sm:w-96">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-text-muted group-focus-within:text-accent transition-colors" />
                   <input
                     type="text"
                     placeholder="Søg i lager..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-bg-secondary border border-border rounded-xl py-2 pl-9 pr-8 text-xs font-bold text-text-primary focus:outline-none focus:border-accent/50 transition-all placeholder:text-text-muted uppercase tracking-widest shadow-inner"
+                    className="w-full bg-bg-primary border-2 border-border/80 rounded-xl py-2.5 pl-10 pr-8 text-xs font-bold text-text-primary focus:outline-none focus:border-accent transition-all placeholder:text-text-muted uppercase tracking-widest shadow-sm"
                   />
                   {searchQuery && (
                     <button
@@ -208,19 +207,37 @@ export default function App() {
                 <div className="flex p-1 bg-bg-secondary rounded-xl border border-border shadow-inner">
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${viewMode === 'list' ? 'bg-accent text-accent-contrast shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-secondary'}`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${viewMode === 'list' ? 'bg-accent text-accent-contrast shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-secondary'}`}
                   >
-                    <List className="size-3" />
+                    <List className="size-3.5" />
                     <span className="hidden lg:inline">Liste</span>
                   </button>
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${viewMode === 'grid' ? 'bg-accent text-accent-contrast shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-secondary'}`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${viewMode === 'grid' ? 'bg-accent text-accent-contrast shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-secondary'}`}
                   >
-                    <LayoutGrid className="size-3" />
+                    <LayoutGrid className="size-3.5" />
                     <span className="hidden lg:inline">Gitter</span>
                   </button>
                 </div>
+
+                {/* Desktop Favorites Button (Moved from fixed position) */}
+                <button
+                  onClick={() => setSelectedCategory('Favoritter')}
+                  className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all active:scale-95 group shadow-sm ${selectedCategory === 'Favoritter'
+                    ? 'bg-accent text-accent-contrast border-accent hover:bg-accent-hover'
+                    : 'bg-bg-primary text-text-primary border-border hover:border-accent/50'}`}
+                  title="Dine Favoritter"
+                >
+                  <div className="relative flex items-center justify-center">
+                    <Heart className={`size-5 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-accent-contrast text-accent-contrast' : 'fill-success text-success') : 'text-text-muted group-hover:text-error'}`} />
+                    {favorites.length > 0 && (
+                      <span className={`absolute -top-2 -right-2 text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-bg-primary ${selectedCategory === 'Favoritter' ? 'bg-accent-contrast text-accent' : 'bg-error text-white'}`}>
+                        {favorites.length}
+                      </span>
+                    )}
+                  </div>
+                </button>
               </div>
 
               {/* Action Buttons for Favorites View */}
@@ -388,10 +405,6 @@ export default function App() {
 
             {/* Subtle Footer for Admin Access */}
             <footer className="mt-auto py-8 border-t border-border/30 px-6 flex flex-col items-center gap-4 bg-bg-secondary/10">
-              <div className="flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition-opacity">
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted">Mårsøvej 1, 4300 Holbæk</p>
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted">+45 40 78 14 88</p>
-              </div>
               <button
                 onClick={() => setCurrentView('pin')}
                 className="text-[10px] font-black uppercase text-text-muted hover:text-accent tracking-[0.2em] transition-all flex items-center gap-2"
@@ -475,22 +488,6 @@ export default function App() {
         categories={categories}
       />
 
-      {/* Quick Access Favorites Button (Desktop only, mobile has it in header) */}
-      <button
-        onClick={() => setSelectedCategory('Favoritter')}
-        className={`hidden md:flex fixed top-4 right-4 z-40 p-3 backdrop-blur-md rounded-full border shadow-xl transition-all active:scale-95 group ${selectedCategory === 'Favoritter'
-          ? 'bg-accent text-accent-contrast border-accent-hover hover:bg-accent-hover'
-          : 'bg-bg-secondary/80 text-text-primary border-border/50 hover:bg-bg-tertiary'}`}
-      >
-        <div className="relative">
-          <Heart className={`size-6 ${favorites.length > 0 ? (selectedCategory === 'Favoritter' ? 'fill-accent-contrast text-accent-contrast' : 'fill-success text-success') : 'text-text-muted group-hover:text-error'}`} />
-          {favorites.length > 0 && (
-            <span className={`absolute -top-2 -right-2 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-bg-primary ${selectedCategory === 'Favoritter' ? 'bg-accent-contrast text-accent' : 'bg-error text-white'}`}>
-              {favorites.length}
-            </span>
-          )}
-        </div>
-      </button>
 
       {/* Main Content Area (Offset by Sidebar on Desktop) */}
       <main className={`flex-1 flex flex-col h-full bg-bg-primary transition-all duration-300 ${currentView === 'shop' || currentView === 'pin' ? 'md:ml-64' : 'w-full'} ${currentView !== 'shop' ? 'z-50 bg-bg-primary fixed inset-0 md:static' : ''} w-full max-w-[100vw] overflow-x-auto`}>

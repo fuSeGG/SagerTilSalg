@@ -105,10 +105,17 @@ const Sidebar = ({
 
             {/* Footer */}
             <div className="p-4 border-t border-border bg-bg-primary">
+                <div className="flex flex-col gap-1 mb-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Mårsøvej 1, 4300 Holbæk</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">+45 40 78 14 88</p>
+                </div>
+                <p className="text-[10px] font-bold text-text-secondary italic mb-3 leading-relaxed">
+                    Ring for bestilling til afhentning eller forsendelse.
+                </p>
                 <ContactButton
                     variant="sidebar"
                     label="Ring for bestilling"
-                    className="w-full mb-2 gap-2"
+                    className="w-full gap-2"
                 />
             </div>
         </div>
