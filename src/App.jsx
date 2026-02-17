@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Menu, Heart, Package, Printer, FileText, ArrowRight, Bookmark, Search } from 'lucide-react';
+import { Menu, Heart, Package, Printer, FileText, ArrowRight, Bookmark, Search, X } from 'lucide-react';
 import { formatFavoritesAsText, downloadTextFile } from './utils/exportUtils';
 import { storage } from './utils/storage';
 import { CATEGORIES, getIconComponent } from './utils/constants';
@@ -39,7 +39,55 @@ export default function App() {
   // Dynamic categories state
   const [categories, setCategories] = useState([]);
 
-  // ... (Load items effect)
+  // Load items and categories on mount
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        // Parallel fetch for speed
+        const [itemsData, categoriesData] = await Promise.all([
+          storage.getAllItems(),
+          supabase.from('categories').select('*').order('sort_order', { ascending: true })
+        ]);
+
+        setItems(Array.isArray(itemsData) ? itemsData : []);
+
+        // Use DB categories if available, else fallback
+        if (categoriesData.data && categoriesData.data.length > 0) {
+          // Map sku_prefix to skuPrefix for frontend consistency
+          const normalizedCategories = categoriesData.data.map(cat => ({
+            ...cat,
+            skuPrefix: cat.sku_prefix || cat.skuPrefix
+          }));
+          setCategories(normalizedCategories);
+        } else {
+          console.log('Using fallback categories');
+          setCategories(CATEGORIES);
+        }
+      } catch (err) {
+        console.error('Failed to load data:', err);
+        setCategories(CATEGORIES); // Safety fallback
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const filteredItems = useMemo(() => {
+    return (items || []).filter(item => {
+      if (!item) return false;
+      const matchesSearch = !searchQuery ||
+        (item.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.sku || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesCategory = selectedCategory === 'Alle' ||
+        (selectedCategory === 'Favoritter' ? favorites.includes(item.sku) : item.category === selectedCategory);
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [items, searchQuery, selectedCategory, favorites]);
 
   // Smart Toggle for Favorites View
   const toggleFavoritesView = () => {
@@ -61,7 +109,41 @@ export default function App() {
     setSelectedCategory(cat);
   };
 
-  // ... (saveItem, deleteItem, etc.)
+  const saveItem = async (itemData) => {
+    try {
+      const isNew = !items.find(i => i.sku === itemData.sku);
+      await storage.set(`item:${itemData.sku}`, itemData, adminPin);
+
+      setItems(prev => isNew ? [...prev, itemData] : prev.map(i => i.sku === itemData.sku ? itemData : i));
+      setCurrentView('admin');
+    } catch (err) {
+      console.error('Save failed:', err);
+      alert('Kunne ikke gemme');
+    }
+  };
+
+  const deleteItem = async (sku) => {
+    if (!window.confirm('Er du sikker?')) return;
+    try {
+      await storage.remove(`item:${sku}`, adminPin);
+      setItems(prev => prev.filter(i => i.sku !== sku));
+    } catch (err) {
+      console.error('Delete failed:', err);
+      alert('Kunne ikke slette');
+    }
+  };
+
+  const toggleFavorite = (sku) => {
+    const newFavs = favorites.includes(sku)
+      ? favorites.filter(s => s !== sku)
+      : [...favorites, sku];
+    setFavorites(newFavs);
+    sessionStorage.setItem('sts_favorites', JSON.stringify(newFavs));
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   const renderContent = () => {
     switch (currentView) {
