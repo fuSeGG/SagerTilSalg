@@ -5,9 +5,12 @@
 @layer base {
   :root {
     /* Default fallback theme (Standard) */
-    --bg-primary: #020617;
-    --bg-secondary: #0f172a;
-    --bg-tertiary: #1e293b;
+    --bg-primary: #0f172a;
+    /* Lightened from #020617 (Dark Slate Blue) */
+    --bg-secondary: #1e293b;
+    /* Lightened from #0f172a (Slate) */
+    --bg-tertiary: #334155;
+    /* Lightened from #1e293b */
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;

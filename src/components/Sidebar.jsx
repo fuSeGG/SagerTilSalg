@@ -60,8 +60,8 @@ const Sidebar = ({
                 <h1 className="text-text-primary font-black text-2xl leading-none tracking-tighter italic whitespace-nowrap">
                     SAGER<span className="text-accent">TIL</span>SALG
                 </h1>
-                <p className="text-text-muted text-xs font-black uppercase tracking-[0.2em] mt-2 mb-2">
-                    Professionel genbrug
+                <p className="text-text-muted text-[10px] font-bold italic tracking-wide mt-2 mb-4 text-center leading-relaxed px-4">
+                    Ring for bestilling til afhentning eller forsendelse.
                 </p>
             </div>
 
@@ -96,7 +96,7 @@ const Sidebar = ({
                             </button>
                             {/* Add separator after the first special category (Favoritter) */}
                             {index === 0 && (
-                                <div className="mx-2 my-3 border-b border-bg-secondary/50" />
+                                <div className="mx-2 my-2 border-b border-border/20" />
                             )}
                         </React.Fragment>
                     ))}
@@ -104,18 +104,15 @@ const Sidebar = ({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-border bg-bg-primary">
-                <div className="flex flex-col gap-1 mb-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Mårsøvej 1, 4300 Holbæk</p>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">+45 40 78 14 88</p>
+            <div className="px-4 py-3 border-t border-border bg-bg-primary">
+                <div className="flex flex-col gap-0.5 mb-2 opacity-60 hover:opacity-100 transition-opacity">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-text-muted text-center">Mårsøvej 1, 4300 Holbæk</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-text-muted text-center">+45 40 78 14 88</p>
                 </div>
-                <p className="text-[10px] font-bold text-text-secondary italic mb-3 leading-relaxed">
-                    Ring for bestilling til afhentning eller forsendelse.
-                </p>
                 <ContactButton
                     variant="sidebar"
                     label="Ring for bestilling"
-                    className="w-full gap-2"
+                    className="w-full gap-2 py-2 text-xs"
                 />
             </div>
         </div>
