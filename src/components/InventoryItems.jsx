@@ -12,8 +12,12 @@ const formatSku = (sku) => {
 };
 
 const getPrimaryImage = (item) => {
-    if (item?.images && item.images.length > 0) return item.images[0];
-    return item?.image || '';
+    if (!item) return '';
+    // Support both images array and legacy image property
+    const images = Array.isArray(item.images) ? item.images : [];
+    if (images.length > 0) return images[0];
+    if (typeof item.image === 'string') return item.image;
+    return '';
 };
 
 export const ItemCard = ({ item, isFavorite, onToggleFavorite, onClick, isSelected }) => {
@@ -24,6 +28,9 @@ export const ItemCard = ({ item, isFavorite, onToggleFavorite, onClick, isSelect
                     src={getPrimaryImage(item)}
                     alt={item.name}
                     loading="lazy"
+                    data-debug-sku={item.sku}
+                    data-debug-img={!!item.image}
+                    data-debug-imgs={item.images?.length || 0}
                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                 />
                 <div className="absolute top-2 right-2 flex gap-2">
@@ -82,6 +89,9 @@ export const ItemRow = ({ item, isFavorite, onToggleFavorite, onClick, isSelecte
                 <img
                     src={getPrimaryImage(item)}
                     alt={item.name}
+                    data-debug-sku={item.sku}
+                    data-debug-img={!!item.image}
+                    data-debug-imgs={item.images?.length || 0}
                     className="w-full h-full object-cover rounded-lg shadow-sm border border-border"
                 />
                 {(item.images?.length > 1) && (
