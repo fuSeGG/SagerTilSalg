@@ -17,7 +17,9 @@ const CATEGORY_DATA = [
 const RANDOM_ADJECTIVES = ['Eksklusiv', 'Brugt', 'Kraftig', 'Professionel', 'Lille', 'Stor', 'Moderne', 'Klassisk', 'Solid', 'Billig'];
 const RANDOM_NOUNS = ['Genstand', 'Modul', 'Enhed', 'Pakke', 'System', 'Udstyr', 'Del', 'Komponent'];
 
-function generateRandomItem(index, existingImages) {
+const BUCKET_BASE_URL = 'https://fglojljzbhhcrxjeipgf.supabase.co/storage/v1/object/public/inventory/stress-test';
+
+function generateRandomItem(index) {
     const cat = CATEGORY_DATA[Math.floor(Math.random() * CATEGORY_DATA.length)];
     const adjective = RANDOM_ADJECTIVES[Math.floor(Math.random() * RANDOM_ADJECTIVES.length)];
     const noun = RANDOM_NOUNS[Math.floor(Math.random() * RANDOM_NOUNS.length)];
@@ -26,16 +28,10 @@ function generateRandomItem(index, existingImages) {
     const price = Math.floor(Math.random() * 5000) + 50;
     const sku = `STRESS-${index}`;
 
-    // Mix high-quality placeholder images with real database-hosted images if available
-    let images = [];
-    if (existingImages && existingImages.length > 0 && Math.random() > 0.5) {
-        // Reuse a real image 50% of the time
-        const randomImg = existingImages[Math.floor(Math.random() * existingImages.length)];
-        images = [randomImg];
-    } else {
-        // Fallback to LoremFlickr placeholder
-        images = [`https://loremflickr.com/1200/800/${cat.keywords.split(',')[0]}?lock=${index}`];
-    }
+    // Randomly pick one of the 20 base images from our bucket
+    const imageIndex = (index % 20) + 1;
+    const imageUrl = `${BUCKET_BASE_URL}/test-base-${imageIndex}.jpg`;
+    const images = [imageUrl];
 
     return {
         sku,
@@ -50,21 +46,7 @@ function generateRandomItem(index, existingImages) {
 }
 
 export async function runStressTestSeeder(count = 2000) {
-    console.log(`🚀 Starting stress test seeding: ${count} items...`);
-
-    // Fetch some real images from the database to reuse
-    let dbImages = [];
-    try {
-        const { data: items } = await supabase.from('items').select('data').limit(20);
-        if (items) {
-            dbImages = items
-                .flatMap(i => i.data.images || (i.data.image ? [i.data.image] : []))
-                .filter(url => url && url.includes('supabase.co'));
-            console.log(`📸 Found ${dbImages.length} real images in the database for reuse.`);
-        }
-    } catch (e) {
-        console.warn('Could not fetch existing images for reuse:', e);
-    }
+    console.log(`🚀 Starting stress test seeder for ${count} items...`);
 
     const BATCH_SIZE = 100;
     const batches = Math.ceil(count / BATCH_SIZE);
@@ -75,7 +57,7 @@ export async function runStressTestSeeder(count = 2000) {
         const batchItems = [];
 
         for (let j = start; j < end; j++) {
-            batchItems.push(generateRandomItem(j + 1, dbImages));
+            batchItems.push(generateRandomItem(j + 1));
         }
 
         console.log(`📦 Seeding batch ${i + 1}/${batches} (${start} to ${end})...`);
