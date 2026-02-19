@@ -11,12 +11,17 @@ const formatSku = (sku) => {
     return `${prefix} ${number}`;
 };
 
+const getPrimaryImage = (item) => {
+    if (item?.images && item.images.length > 0) return item.images[0];
+    return item?.image || '';
+};
+
 export const ItemCard = ({ item, isFavorite, onToggleFavorite, onClick, isSelected }) => {
     return (
         <div className={`group bg-bg-secondary border-2 rounded-2xl overflow-hidden transition-all duration-300 ${isSelected ? 'border-accent ring-2 ring-accent/20' : 'border-border hover:border-text-muted/30'}`}>
             <div className={`relative aspect-video overflow-hidden bg-black cursor-pointer group-hover:scale-[1.02] transition-transform duration-500`} onClick={onClick}>
                 <img
-                    src={item.image}
+                    src={getPrimaryImage(item)}
                     alt={item.name}
                     loading="lazy"
                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
@@ -75,7 +80,7 @@ export const ItemRow = ({ item, isFavorite, onToggleFavorite, onClick, isSelecte
         >
             <div className="relative w-24 aspect-video rounded-lg overflow-hidden flex-shrink-0 z-20 bg-black">
                 <img
-                    src={item.image}
+                    src={getPrimaryImage(item)}
                     alt={item.name}
                     className="w-full h-full object-cover rounded-lg shadow-sm border border-border"
                 />
