@@ -43,6 +43,7 @@ function generateRandomItem(index, existingImages) {
         category: cat.id,
         price,
         description: `Dette er en stresstest-vare genereret automatisk. Kategori: ${cat.id}. Stand: ${adjective.toLowerCase()}.`,
+        image: images[0] || '', // Backward compat
         images,
         created_at: new Date().toISOString()
     };
