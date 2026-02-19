@@ -9,17 +9,24 @@ const MAX_STORAGE_BYTES = 1 * 1024 * 1024 * 1024; // 1GB
  */
 export const getStorageUsage = async () => {
     try {
-        const { data: files, error } = await supabase.storage
+        // Fetch files from root
+        const { data: rootFiles, error: rootError } = await supabase.storage
             .from('inventory')
-            .list('', { limit: 1000 }); // List up to 1000 files
+            .list('', { limit: 1000 });
 
-        if (error) {
-            console.error('Error fetching storage usage:', error);
+        if (rootError) {
+            console.error('Error fetching root storage usage:', rootError);
             return null;
         }
 
-        const usedBytes = files.reduce((total, file) => {
-            // Folders have no size, only files do
+        // Also fetch from stress-test folder for the demonstration
+        const { data: stressFiles, error: stressError } = await supabase.storage
+            .from('inventory')
+            .list('stress-test', { limit: 1000 });
+
+        const allFiles = [...(rootFiles || []), ...(stressFiles || [])];
+
+        const usedBytes = allFiles.reduce((total, file) => {
             return total + (file.metadata?.size || 0);
         }, 0);
 
