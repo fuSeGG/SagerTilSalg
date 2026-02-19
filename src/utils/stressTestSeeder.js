@@ -107,7 +107,7 @@ export async function fixBTImages() {
     const { data: items, error: fetchError } = await supabase
         .from('items')
         .select('*')
-        .ilike('sku', 'BT-%')
+        .or('sku.ilike.BT-%,sku.ilike.STRESS-%')
         .limit(5000);
 
     if (fetchError) {
