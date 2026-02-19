@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient';
 /**
  * UTILITY: Stress Test Seeder
  * Generates 2000 items and upserts them to Supabase in batches.
- * SKUs are prefixed with STRESS- for easy identification and cleanup.
+ * SKUs are prefixed with BT- (Bucket Test) for easy identification.
  */
 
 const CATEGORY_DATA = [
@@ -24,9 +24,9 @@ function generateRandomItem(index) {
     const adjective = RANDOM_ADJECTIVES[Math.floor(Math.random() * RANDOM_ADJECTIVES.length)];
     const noun = RANDOM_NOUNS[Math.floor(Math.random() * RANDOM_NOUNS.length)];
 
-    const name = `${adjective} ${cat.id === 'Materialer' ? 'Materiale' : noun} #${index}`;
+    const name = `Bucket Test Ware #${index}`;
     const price = Math.floor(Math.random() * 5000) + 50;
-    const sku = `STRESS-${index}`;
+    const sku = `BT-${index}-${Math.random().toString(36).substring(7)}`; // Unique suffix to avoid conflicts
 
     // Randomly pick one of the 20 base images from our bucket
     const imageIndex = (index % 20) + 1;
@@ -89,7 +89,7 @@ export async function cleanupStressTestData() {
     const { error } = await supabase
         .from('items')
         .delete()
-        .like('sku', 'STRESS-%');
+        .like('sku', 'BT-%');
 
     if (error) {
         console.error('❌ Error during cleanup:', error);
@@ -98,8 +98,67 @@ export async function cleanupStressTestData() {
     }
 }
 
+/**
+ * Fixes existing BT items that have broken images (pointing to base_images/)
+ */
+export async function fixBTImages() {
+    console.log('🔧 Starting bulk fix for BT- items...');
+
+    const { data: items, error: fetchError } = await supabase
+        .from('items')
+        .select('*')
+        .ilike('sku', 'BT-%');
+
+    if (fetchError) {
+        console.error('Error fetching items:', fetchError);
+        return;
+    }
+
+    console.log(`🔍 Found ${items.length} items to check.`);
+    const BATCH_SIZE = 50;
+    const updates = [];
+
+    for (const item of items) {
+        const currentImg = item.data?.image || '';
+        // If it's a base_image or loremflickr, it needs fixing
+        if (currentImg.includes('base_images') || currentImg.includes('loremflickr') || !currentImg) {
+            const mockIndex = Math.floor(Math.random() * 20) + 1;
+            const newUrl = `${BUCKET_BASE_URL}/test-base-${mockIndex}.jpg`;
+
+            const updatedData = {
+                ...item.data,
+                image: newUrl,
+                images: [newUrl]
+            };
+
+            updates.push({
+                sku: item.sku,
+                category: item.category,
+                data: updatedData
+            });
+        }
+    }
+
+    if (updates.length === 0) {
+        console.log('✅ All images already look correct.');
+        return;
+    }
+
+    console.log(`🛠️ Patching ${updates.length} items...`);
+
+    for (let i = 0; i < updates.length; i += BATCH_SIZE) {
+        const batch = updates.slice(i, i + BATCH_SIZE);
+        const { error } = await supabase.from('items').upsert(batch);
+        if (error) console.error(`Error in batch ${i}:`, error);
+        else console.log(`✅ Batch ${Math.floor(i / BATCH_SIZE) + 1} complete`);
+    }
+
+    console.log('🏁 Fix complete!');
+}
+
 // Expose to window for manual execution in console
 if (typeof window !== 'undefined') {
     window.runStressTestSeeder = runStressTestSeeder;
     window.cleanupStressTestData = cleanupStressTestData;
+    window.fixBTImages = fixBTImages;
 }
