@@ -28,9 +28,6 @@ export const ItemCard = ({ item, isFavorite, onToggleFavorite, onClick, isSelect
                     src={getPrimaryImage(item)}
                     alt={item.name}
                     loading="lazy"
-                    data-debug-sku={item.sku}
-                    data-debug-img={!!item.image}
-                    data-debug-imgs={item.images?.length || 0}
                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                 />
                 <div className="absolute top-2 right-2 flex gap-2">
@@ -89,9 +86,6 @@ export const ItemRow = ({ item, isFavorite, onToggleFavorite, onClick, isSelecte
                 <img
                     src={getPrimaryImage(item)}
                     alt={item.name}
-                    data-debug-sku={item.sku}
-                    data-debug-img={!!item.image}
-                    data-debug-imgs={item.images?.length || 0}
                     className="w-full h-full object-cover rounded-lg shadow-sm border border-border"
                 />
                 {(item.images?.length > 1) && (

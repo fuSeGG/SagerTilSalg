@@ -84,12 +84,12 @@ export async function runStressTestSeeder(count = 2000) {
 }
 
 export async function cleanupStressTestData() {
-    console.log('🧹 Cleaning up stress test data...');
+    console.log('🧹 Cleaning up stress test data (BT- and STRESS-)...');
 
     const { error } = await supabase
         .from('items')
         .delete()
-        .like('sku', 'BT-%');
+        .or('sku.ilike.BT-%,sku.ilike.STRESS-%');
 
     if (error) {
         console.error('❌ Error during cleanup:', error);
