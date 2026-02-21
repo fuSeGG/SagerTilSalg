@@ -20,6 +20,9 @@ export async function onRequestPost({ request, env }) {
         }
 
         // 2. Initialize Supabase with Service Key (Admin)
+        if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+            return new Response(JSON.stringify({ error: 'System configuration error: Service key missing' }), { status: 500 });
+        }
         const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
         // 3. Image Cleanup Logic

@@ -123,13 +123,13 @@ export default function App() {
   };
 
   const deleteItem = async (sku) => {
-    if (!window.confirm('Er du sikker?')) return;
+    if (!window.confirm('Er du sikker på, at du vil slette denne vare?')) return;
     try {
       await storage.remove(`item:${sku}`, adminPin);
       setItems(prev => prev.filter(i => i.sku !== sku));
     } catch (err) {
       console.error('Delete failed:', err);
-      alert('Kunne ikke slette');
+      alert(`Sletning fejlede: ${err.message}`);
     }
   };
 

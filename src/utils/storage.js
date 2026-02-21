@@ -65,8 +65,7 @@ export const storage = {
         try {
             if (key.includes('item:')) {
                 if (!pin) {
-                    console.error('PIN required for deleting items');
-                    return false;
+                    throw new Error('PIN er påkrævet for at slette varer');
                 }
 
                 const sku = key.split('item:')[1];
@@ -78,7 +77,8 @@ export const storage = {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to delete item');
+                    const err = await response.json();
+                    throw new Error(err.error || 'Kunne ikke slette varen fra serveren');
                 }
                 return true;
             }
@@ -86,7 +86,7 @@ export const storage = {
             return true;
         } catch (e) {
             console.error('Storage Remove Error:', e);
-            return false;
+            throw e; // Throw so UI can catch and alert
         }
     },
 

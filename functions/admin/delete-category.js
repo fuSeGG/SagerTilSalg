@@ -10,6 +10,10 @@ export async function onRequestPost({ request, env }) {
             return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
         }
 
+        // 2. Initialize Supabase with Service Key (Admin)
+        if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+            return new Response(JSON.stringify({ error: 'System configuration error: Service key missing' }), { status: 500 });
+        }
         const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
         // 2. SAFETY CHECK: Ensure no items use this category
