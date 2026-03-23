@@ -62,7 +62,9 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
     const [formErrors, setFormErrors] = useState({});
     const [submitError, setSubmitError] = useState(null);
     const fileInputRef = useRef(null);
+    const cameraInputRef = useRef(null); // Ref for camera input
     const formTopRef = useRef(null);
+    const [oldSku, setOldSku] = useState(initialData?.sku || null); // Track old SKU for edit mode
 
     // Use dynamic categories if provided, otherwise fallback is handled by App.jsx passing them
     const activeCategories = (categories && categories.length > 0) ? categories : CATEGORIES;
@@ -199,7 +201,8 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                 images: finalImageUrls,
                 image: finalImageUrls[0], // Backward compatibility
                 price: Number(formData.price),
-                quantity: formData.quantity ? Number(formData.quantity) : 1
+                quantity: formData.quantity ? Number(formData.quantity) : 1,
+                oldSku: oldSku !== formData.sku ? oldSku : null // Pass oldSku if it changed
             });
         } catch (err) {
             console.error('Upload error:', err);
@@ -273,16 +276,26 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                             </div>
                         ))}
 
-                        {/* Add Button */}
+                        {/* Add Button (Gallery) */}
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className={`aspect-square rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer hover:bg-bg-tertiary/50 group ${formErrors.images ? 'border-error bg-error/5' : 'border-border'
-                                }`}
+                            className={`aspect-square rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer hover:bg-bg-tertiary/50 group ${formErrors.images ? 'border-error bg-error/5' : 'border-border'}`}
+                        >
+                            <div className="p-3 bg-bg-tertiary rounded-full mb-2 group-hover:scale-110 transition-transform">
+                                <Upload className={`size-6 ${formErrors.images ? 'text-error' : 'text-text-muted'}`} />
+                            </div>
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wide group-hover:text-text-primary">Bibliotek</span>
+                        </div>
+
+                        {/* Add Button (Camera) */}
+                        <div
+                            onClick={() => cameraInputRef.current?.click()}
+                            className={`aspect-square rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer hover:bg-bg-tertiary/50 group ${formErrors.images ? 'border-error bg-error/5' : 'border-border'}`}
                         >
                             <div className="p-3 bg-bg-tertiary rounded-full mb-2 group-hover:scale-110 transition-transform">
                                 <Camera className={`size-6 ${formErrors.images ? 'text-error' : 'text-text-muted'}`} />
                             </div>
-                            <span className="text-xs font-bold text-text-muted uppercase tracking-wide group-hover:text-text-primary">Tilføj foto</span>
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wide group-hover:text-text-primary">Kamera</span>
                         </div>
                     </div>
 
@@ -292,6 +305,14 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                         multiple // Allow multiple files
                         className="hidden"
                         ref={fileInputRef}
+                        onChange={handleImageChange}
+                    />
+                    <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment" // direct camera access on mobile
+                        className="hidden"
+                        ref={cameraInputRef}
                         onChange={handleImageChange}
                     />
                     <FieldError field="images" />
@@ -323,7 +344,7 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                                 onChange={(e) => {
                                     const newCat = e.target.value;
                                     setFormData(prev => ({ ...prev, category: newCat, sku: 'Loading...' }));
-                                    if (!initialData && getNextSku) {
+                                    if (getNextSku) {
                                         getNextSku(newCat, categories).then(sku => {
                                             setFormData(prev => ({ ...prev, sku }));
                                         });

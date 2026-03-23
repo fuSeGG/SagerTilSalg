@@ -65,6 +65,21 @@ export async function onRequestPost({ request, env }) {
 
         if (error) throw error;
 
+        // 5. Clean up old SKU if it changed (prevents duplicates on category change)
+        if (item.oldSku && item.oldSku !== item.sku) {
+            console.log(`Deleting old SKU row: ${item.oldSku} after renaming to ${item.sku}`);
+            const { error: deleteError } = await supabase
+                .from('items')
+                .delete()
+                .eq('sku', item.oldSku);
+                
+            if (deleteError) {
+                console.error(`Failed to delete old SKU row ${item.oldSku}:`, deleteError);
+                // We don't throw here to ensure the upsert is considered safe, 
+                // but it leaves an orphan. Better than failing the save.
+            }
+        }
+
         return new Response(JSON.stringify({ success: true, data }), {
             headers: { 'Content-Type': 'application/json' }
         });

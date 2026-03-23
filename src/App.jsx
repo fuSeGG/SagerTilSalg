@@ -111,10 +111,13 @@ export default function App() {
 
   const saveItem = async (itemData) => {
     try {
-      const isNew = !items.find(i => i.sku === itemData.sku);
       await storage.set(`item:${itemData.sku}`, itemData, adminPin);
 
-      setItems(prev => isNew ? [...prev, itemData] : prev.map(i => i.sku === itemData.sku ? itemData : i));
+      setItems(prev => {
+        const filtered = itemData.oldSku ? prev.filter(i => i.sku !== itemData.oldSku) : prev;
+        const isNew = !filtered.find(i => i.sku === itemData.sku);
+        return isNew ? [...filtered, itemData] : filtered.map(i => i.sku === itemData.sku ? itemData : i);
+      });
       setCurrentView('admin');
     } catch (err) {
       console.error('Save failed:', err);
