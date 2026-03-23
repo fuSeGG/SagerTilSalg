@@ -111,7 +111,7 @@ const Sidebar = ({
                 </div>
                 <ContactButton
                     variant="sidebar"
-                    label="Ring for bestilling"
+                    label="Ring for info"
                     className="w-full gap-2 py-2 text-xs"
                 />
             </div>

@@ -3,7 +3,7 @@ import { Phone, MessageSquare } from 'lucide-react';
 
 const ContactButton = ({
     type = 'tel',
-    label = 'Ring for bestilling',
+    label = 'Ring for info',
     itemInfo = '',
     className = '',
     variant = 'primary'

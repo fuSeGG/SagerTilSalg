@@ -92,7 +92,7 @@ const ItemModal = ({ item, isFavorite, onToggleFavorite, onClose }) => {
                             <div className="col-span-12">
                                 <ContactButton
                                     variant="primary"
-                                    label="Ring for bestilling"
+                                    label="Ring for info"
                                     className="w-full py-5 bg-accent text-accent-contrast hover:bg-accent-hover rounded-[1.25rem] font-black text-xl tracking-tighter shadow-xl shadow-accent/10 active:scale-95 transition-all border-b-4 border-accent-hover/50"
                                 />
                             </div>
