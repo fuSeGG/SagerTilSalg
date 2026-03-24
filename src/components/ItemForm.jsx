@@ -154,6 +154,9 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
 
     const validate = () => {
         const errors = {};
+        if (!formData.sku || formData.sku === 'Loading...') {
+            errors.sku = 'SKU er ikke klar endnu. Vent et øjeblik og prøv igen.';
+        }
         if (previews.length === 0) {
             errors.images = 'Du skal uploade mindst ét billede af varen.';
         }

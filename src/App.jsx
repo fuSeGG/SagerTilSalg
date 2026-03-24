@@ -466,6 +466,7 @@ export default function App() {
       case 'add':
         return (
           <ItemForm
+            key="add-new-item"
             getNextSku={storage.getNextSku}
             onSave={saveItem}
             onCancel={() => setCurrentView('admin')}
@@ -476,6 +477,7 @@ export default function App() {
       case 'edit':
         return (
           <ItemForm
+            key={`edit-${editingItem?.sku}`}
             initialData={editingItem}
             getNextSku={storage.getNextSku}
             onSave={saveItem}

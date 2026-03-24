@@ -19,6 +19,11 @@ export async function onRequestPost({ request, env }) {
             return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
         }
 
+        // 1b. Validate SKU
+        if (!item.sku || item.sku === 'Loading...' || item.sku.trim() === '') {
+            return new Response(JSON.stringify({ error: 'Ugyldig SKU. Vælg en kategori og vent til SKU er genereret.' }), { status: 400 });
+        }
+
         // 2. Initialize Supabase with Service Key (Admin)
         if (!env.SUPABASE_SERVICE_ROLE_KEY) {
             return new Response(JSON.stringify({ error: 'System configuration error: Service key missing' }), { status: 500 });
