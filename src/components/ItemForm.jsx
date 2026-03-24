@@ -205,7 +205,8 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                 image: finalImageUrls[0], // Backward compatibility
                 price: Number(formData.price),
                 quantity: formData.quantity ? Number(formData.quantity) : 1,
-                oldSku: oldSku !== formData.sku ? oldSku : null // Pass oldSku if it changed
+                // Only pass oldSku in edit mode AND if SKU actually changed
+                oldSku: (initialData && oldSku && oldSku !== formData.sku) ? oldSku : undefined
             });
         } catch (err) {
             console.error('Upload error:', err);
@@ -337,8 +338,9 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                                 type="text"
                                 value={formData.sku}
                                 readOnly
-                                className="w-full bg-bg-secondary/50 border border-border rounded-xl px-4 py-3 text-text-muted cursor-not-allowed font-mono"
+                                className={`w-full bg-bg-secondary/50 border rounded-xl px-4 py-3 text-text-muted cursor-not-allowed font-mono ${formErrors.sku ? 'border-error' : 'border-border'}`}
                             />
+                            <FieldError field="sku" />
                         </div>
                         <div>
                             <label className="block text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">Kategori</label>
@@ -418,11 +420,11 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
 
                 <button
                     type="submit"
-                    disabled={isProcessing}
+                    disabled={isProcessing || formData.sku === 'Loading...'}
                     className="w-full flex items-center justify-center gap-3 py-5 bg-accent hover:bg-accent-hover text-accent-contrast rounded-2xl font-bold text-lg transition-all shadow-2xl shadow-accent/30 active:scale-95 disabled:opacity-50"
                 >
                     <Save className="size-6" />
-                    {initialData ? 'Gem ændringer' : 'Gem vare på lageret'}
+                    {formData.sku === 'Loading...' ? 'Venter på SKU...' : (initialData ? 'Gem ændringer' : 'Gem vare på lageret')}
                 </button>
             </form>
         </div>
