@@ -25,12 +25,17 @@ export async function onRequestPost({ request, env }) {
         }
         const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-        // 3. Image Cleanup Logic
-        // Fetch existing item to see what images it had
+        // 3. Extract and strip oldSku (transient field, should NOT be persisted)
+        const oldSku = item.oldSku || null;
+        delete item.oldSku;
+
+        // 4. Image Cleanup Logic
+        // Look up by OLD SKU if it changed, otherwise by current SKU
+        const lookupSku = (oldSku && oldSku !== item.sku) ? oldSku : item.sku;
         const { data: existing } = await supabase
             .from('items')
             .select('data')
-            .eq('sku', item.sku)
+            .eq('sku', lookupSku)
             .single();
 
         if (existing?.data) {
@@ -48,12 +53,25 @@ export async function onRequestPost({ request, env }) {
 
             if (pathsToDelete.length > 0) {
                 console.log('Deleting orphaned images:', pathsToDelete);
-                // Batch delete
                 await supabase.storage.from('inventory').remove(pathsToDelete);
             }
         }
 
-        // 4. Perform Upsert
+        // 5. If SKU changed (category edit), delete old row FIRST to avoid duplicates
+        if (oldSku && oldSku !== item.sku) {
+            console.log(`Category change: deleting old SKU row "${oldSku}" before creating "${item.sku}"`);
+            const { error: deleteError } = await supabase
+                .from('items')
+                .delete()
+                .eq('sku', oldSku);
+
+            if (deleteError) {
+                console.error(`Failed to delete old SKU row ${oldSku}:`, deleteError);
+                // Continue anyway — better to have a temporary duplicate than lose the save
+            }
+        }
+
+        // 6. Upsert the item with the (possibly new) SKU
         const { data, error } = await supabase
             .from('items')
             .upsert({
@@ -64,21 +82,6 @@ export async function onRequestPost({ request, env }) {
             .select();
 
         if (error) throw error;
-
-        // 5. Clean up old SKU if it changed (prevents duplicates on category change)
-        if (item.oldSku && item.oldSku !== item.sku) {
-            console.log(`Deleting old SKU row: ${item.oldSku} after renaming to ${item.sku}`);
-            const { error: deleteError } = await supabase
-                .from('items')
-                .delete()
-                .eq('sku', item.oldSku);
-                
-            if (deleteError) {
-                console.error(`Failed to delete old SKU row ${item.oldSku}:`, deleteError);
-                // We don't throw here to ensure the upsert is considered safe, 
-                // but it leaves an orphan. Better than failing the save.
-            }
-        }
 
         return new Response(JSON.stringify({ success: true, data }), {
             headers: { 'Content-Type': 'application/json' }
