@@ -477,6 +477,7 @@ export default function App() {
         return (
           <ItemForm
             initialData={editingItem}
+            getNextSku={storage.getNextSku}
             onSave={saveItem}
             onCancel={() => {
               setEditingItem(null);

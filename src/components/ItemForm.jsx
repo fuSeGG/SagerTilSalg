@@ -347,6 +347,13 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                                     if (getNextSku) {
                                         getNextSku(newCat, categories).then(sku => {
                                             setFormData(prev => ({ ...prev, sku }));
+                                        }).catch(err => {
+                                            console.error('Failed to get next SKU:', err);
+                                            // Fallback: use prefix + timestamp so form isn't stuck
+                                            const cat = categories?.find(c => c.id === newCat);
+                                            const prefix = cat?.skuPrefix || 'ST';
+                                            const fallback = `${prefix}-${Date.now().toString(36).toUpperCase()}`;
+                                            setFormData(prev => ({ ...prev, sku: fallback }));
                                         });
                                     }
                                 }}
