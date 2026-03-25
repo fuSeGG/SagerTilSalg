@@ -136,23 +136,15 @@ export const storage = {
 
             if (data && data.length > 0) {
                 data.forEach(item => {
-                    existingSkus.add(item.sku);
-                    const parts = item.sku.split('-');
-                    if (parts.length > 1) {
-                        const numPart = parseInt(parts[1]);
-                        if (!isNaN(numPart) && numPart > maxNum) {
-                            maxNum = numPart;
-                        }
-                    }
+                    existingSkus.add(item.sku.toUpperCase());
                 });
             }
 
-            // Generate next SKU and verify it doesn't exist
-            let nextNum = maxNum + 1;
+            // Generate next SKU by finding the lowest available number
+            let nextNum = 1;
             let candidateSku = `${prefix}-${nextNum}`;
 
-            // Safety: loop until we find a non-existing SKU (shouldn't normally iterate)
-            while (existingSkus.has(candidateSku)) {
+            while (existingSkus.has(candidateSku.toUpperCase())) {
                 nextNum++;
                 candidateSku = `${prefix}-${nextNum}`;
             }
