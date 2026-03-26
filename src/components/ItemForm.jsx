@@ -206,7 +206,8 @@ const ItemForm = ({ initialData, onSave, onCancel, getNextSku, categories }) => 
                 price: Number(formData.price),
                 quantity: formData.quantity ? Number(formData.quantity) : 1,
                 // Only pass oldSku in edit mode AND if SKU actually changed
-                oldSku: (initialData && oldSku && oldSku !== formData.sku) ? oldSku : undefined
+                oldSku: (initialData && oldSku && oldSku !== formData.sku) ? oldSku : undefined,
+                isNew: !initialData
             });
         } catch (err) {
             console.error('Upload error:', err);

@@ -34,36 +34,41 @@ export async function onRequestPost({ request, env }) {
         const oldSku = item.oldSku || null;
         delete item.oldSku;
 
-        // 4. Image Cleanup Logic
-        // Look up by OLD SKU if it changed, otherwise by current SKU
-        const lookupSku = (oldSku && oldSku !== item.sku) ? oldSku : item.sku;
-        const { data: existing } = await supabase
-            .from('items')
-            .select('data')
-            .eq('sku', lookupSku)
-            .single();
+        const isNew = item.isNew === true;
+        delete item.isNew;
 
-        if (existing?.data) {
-            // Normalize old images to array (handle legacy 'image' string)
-            const oldImages = existing.data.images || (existing.data.image ? [existing.data.image] : []);
+        // 4. Image Cleanup Logic (ONLY for existing items)
+        if (!isNew) {
+            // Look up by OLD SKU if it changed, otherwise by current SKU
+            const lookupSku = (oldSku && oldSku !== item.sku) ? oldSku : item.sku;
+            const { data: existing } = await supabase
+                .from('items')
+                .select('data')
+                .eq('sku', lookupSku)
+                .single();
 
-            // Normalize new images to array
-            const newImages = item.images || (item.image ? [item.image] : []);
+            if (existing?.data) {
+                // Normalize old images to array (handle legacy 'image' string)
+                const oldImages = existing.data.images || (existing.data.image ? [existing.data.image] : []);
 
-            // Identify orphaned images (in old but not in new)
-            const pathsToDelete = oldImages
-                .filter(img => !newImages.includes(img))
-                .map(extractStoragePath)
-                .filter(Boolean);
+                // Normalize new images to array
+                const newImages = item.images || (item.image ? [item.image] : []);
 
-            if (pathsToDelete.length > 0) {
-                console.log('Deleting orphaned images:', pathsToDelete);
-                await supabase.storage.from('inventory').remove(pathsToDelete);
+                // Identify orphaned images (in old but not in new)
+                const pathsToDelete = oldImages
+                    .filter(img => !newImages.includes(img))
+                    .map(extractStoragePath)
+                    .filter(Boolean);
+
+                if (pathsToDelete.length > 0) {
+                    console.log('Deleting orphaned images:', pathsToDelete);
+                    await supabase.storage.from('inventory').remove(pathsToDelete);
+                }
             }
         }
 
-        // 5. If SKU changed (category edit), delete old row FIRST to avoid duplicates
-        if (oldSku && oldSku !== item.sku) {
+        // 5. If SKU changed (category edit) and it's not a new item, delete old row FIRST
+        if (!isNew && oldSku && oldSku !== item.sku) {
             console.log(`Category change: deleting old SKU row "${oldSku}" before creating "${item.sku}"`);
             const { error: deleteError } = await supabase
                 .from('items')
@@ -72,21 +77,46 @@ export async function onRequestPost({ request, env }) {
 
             if (deleteError) {
                 console.error(`Failed to delete old SKU row ${oldSku}:`, deleteError);
-                // Continue anyway — better to have a temporary duplicate than lose the save
             }
         }
 
-        // 6. Upsert the item with the (possibly new) SKU
-        const { data, error } = await supabase
-            .from('items')
-            .upsert({
-                sku: item.sku,
-                category: item.category,
-                data: item
-            }, { onConflict: 'sku' })
-            .select();
+        // 6. DB Operation: INSERT vs UPSERT
+        const dbPayload = {
+            sku: item.sku,
+            category: item.category,
+            data: item
+        };
 
-        if (error) throw error;
+        if (isNew) {
+            // Strict INSERT. Fail if SKU already exists.
+            const { data, error } = await supabase
+                .from('items')
+                .insert(dbPayload)
+                .select();
+            
+            if (error) {
+                if (error.code === '23505') { // postgres unique violation
+                    throw new Error(`SKU konflikt: En anden vare bruger allerede ${item.sku}. Opdater siden og prøv igen.`);
+                }
+                throw error;
+            }
+            
+            return new Response(JSON.stringify({ success: true, data }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } else {
+            // EDIT mode: UPSERT
+            const { data, error } = await supabase
+                .from('items')
+                .upsert(dbPayload, { onConflict: 'sku' })
+                .select();
+
+            if (error) throw error;
+
+            return new Response(JSON.stringify({ success: true, data }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
 
         return new Response(JSON.stringify({ success: true, data }), {
             headers: { 'Content-Type': 'application/json' }
