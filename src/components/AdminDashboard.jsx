@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'; // Trigger redeploy
 import { Plus, ArrowLeft, Search, Trash2, Edit, Package, BarChart3, X, HardDrive, Settings, ChevronDown, Zap, Activity, Trash, Wrench as WrenchIcon } from 'lucide-react';
 import { getStorageUsage } from '../utils/storageUsage';
 import { CATEGORIES, COLORS, ICON_MAP, getIconComponent } from '../utils/constants';
-import { runStressTestSeeder, cleanupStressTestData, fixBTImages } from '../utils/stressTestSeeder';
 
 const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [], onInspect }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -393,81 +392,6 @@ const AdminDashboard = ({ items, onAdd, onEdit, onDelete, onBack, categories = [
                     </div>
                 </div>
             )
-            }
-
-            {/* Power Tools Section */}
-            {
-                isManagingCategories && (
-                    <div className="bg-bg-secondary border-2 border-accent/20 rounded-3xl p-6 mb-8 animate-in fade-in slide-in-from-top-4">
-                        <h3 className="text-xl font-black text-text-primary uppercase italic tracking-tighter mb-6 flex items-center gap-3">
-                            <Zap className="text-accent size-6" />
-                            Power Tools (System)
-                        </h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-bg-primary border border-border p-4 rounded-2xl flex flex-col gap-3">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <Activity className="text-accent size-5" />
-                                    <span className="text-xs font-black uppercase tracking-widest text-text-primary">Stress Test</span>
-                                </div>
-                                <p className="text-[10px] text-text-muted font-bold leading-relaxed px-1">
-                                    Generer 100 test-varer med unikke SKU'er for at teste systemets ydeevne og layout.
-                                </p>
-                                <button
-                                    onClick={async () => {
-                                        if (confirm("Generer 100 test-varer?")) {
-                                            await runStressTestSeeder(100);
-                                            window.location.reload();
-                                        }
-                                    }}
-                                    className="mt-auto w-full py-2.5 bg-bg-tertiary hover:bg-bg-secondary border border-border rounded-xl text-[10px] font-black uppercase tracking-widest text-text-secondary transition-all active:scale-95"
-                                >
-                                    Kør Stress Test
-                                </button>
-                            </div>
-
-                            <div className="bg-bg-primary border border-border p-4 rounded-2xl flex flex-col gap-3">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <Trash className="text-error size-5" />
-                                    <span className="text-xs font-black uppercase tracking-widest text-text-primary">Clean Data</span>
-                                </div>
-                                <p className="text-[10px] text-text-muted font-bold leading-relaxed px-1">
-                                    Fjern alle automatisk genererede test-varer (BT- og STRESS- præfiks).
-                                </p>
-                                <button
-                                    onClick={async () => {
-                                        if (confirm("Slet alle test-data?")) {
-                                            await cleanupStressTestData();
-                                            window.location.reload();
-                                        }
-                                    }}
-                                    className="mt-auto w-full py-2.5 bg-error/10 hover:bg-error/20 border border-error/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-error transition-all active:scale-95"
-                                >
-                                    Oprydning
-                                </button>
-                            </div>
-
-                            <div className="bg-bg-primary border border-border p-4 rounded-2xl flex flex-col gap-3">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <WrenchIcon className="text-success size-5" />
-                                    <span className="text-xs font-black uppercase tracking-widest text-text-primary">Fix Images</span>
-                                </div>
-                                <p className="text-[10px] text-text-muted font-bold leading-relaxed px-1">
-                                    Reparer billed-links på BT-varer der peger på forældede eller døde URLs.
-                                </p>
-                                <button
-                                    onClick={async () => {
-                                        await fixBTImages();
-                                        window.location.reload();
-                                    }}
-                                    className="mt-auto w-full py-2.5 bg-success/10 hover:bg-success/20 border border-success/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-success transition-all active:scale-95"
-                                >
-                                    Reparer Billeder
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )
             }
 
             {/* Inventory List Header */}
